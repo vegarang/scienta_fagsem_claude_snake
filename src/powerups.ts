@@ -4,6 +4,7 @@ import { samePos, hitsExtraWall, allCells } from './snake';
 export const POWERUP_SPAWN_MIN = 25;
 export const POWERUP_SPAWN_MAX = 50;
 export const POWERUP_BOARD_DURATION = 30;
+export const POWERUP_DISTANCE_FACTOR = 2;
 export const EFFECT_DURATION = 15;
 export const POWERUP_MAX_ON_BOARD = 1;
 export const SHRINK_AMOUNT = 3;
@@ -22,6 +23,7 @@ export function placePowerUp(
   powerups: readonly PowerUp[],
   food: Vec2,
   gridSize: Vec2,
+  snakeHead: Vec2,
   rng: () => number = Math.random,
 ): PowerUp | null {
   const candidates = allCells(gridSize).filter(
@@ -34,5 +36,6 @@ export function placePowerUp(
   if (candidates.length === 0) return null;
   const pos = candidates[Math.floor(rng() * candidates.length)];
   const type = POWERUP_TYPES[Math.floor(rng() * POWERUP_TYPES.length)];
-  return { type, pos, expiresInTicks: POWERUP_BOARD_DURATION };
+  const distance = Math.abs(pos.x - snakeHead.x) + Math.abs(pos.y - snakeHead.y);
+  return { type, pos, expiresInTicks: Math.max(POWERUP_BOARD_DURATION, distance * POWERUP_DISTANCE_FACTOR) };
 }

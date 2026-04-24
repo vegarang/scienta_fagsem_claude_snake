@@ -140,7 +140,7 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
   // 6. Spawn countdown
   let newCountdown = state.powerupSpawnCountdown - 1;
   if (newCountdown <= 0 && boardPowerups.length < POWERUP_MAX_ON_BOARD) {
-    const spawned = placePowerUp(newSnake, allWalls, boardPowerups, newFood, gridSize, rng);
+    const spawned = placePowerUp(newSnake, allWalls, boardPowerups, newFood, gridSize, newSnake[0], rng);
     if (spawned) boardPowerups = [...boardPowerups, spawned];
     newCountdown = POWERUP_SPAWN_MIN + Math.floor(rng() * (POWERUP_SPAWN_MAX - POWERUP_SPAWN_MIN + 1));
   }
