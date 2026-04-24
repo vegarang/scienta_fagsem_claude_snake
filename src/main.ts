@@ -216,6 +216,7 @@ function loop(timestamp: number): void {
       const prevScore = state.score;
       const prevFood = state.food;
       const prevActiveCount = state.activeEffects.length;
+      const prevActiveEffects = state.activeEffects;
       const prevSnakeLen = state.snake.length;
 
       state = tick(state);
@@ -232,9 +233,11 @@ function loop(timestamp: number): void {
       }
 
       if (state.phase === 'playing') {
-        // Powerup collected: new active effect added, or snake shrank unexpectedly
-        if (state.activeEffects.length > prevActiveCount || state.snake.length < prevSnakeLen) {
-          playPowerup();
+        if (state.snake.length < prevSnakeLen) {
+          playPowerup('shrink');
+        } else if (state.activeEffects.length > prevActiveCount) {
+          const newEffect = state.activeEffects.find(e => !prevActiveEffects.some(p => p.type === e.type));
+          if (newEffect) playPowerup(newEffect.type);
         }
       }
     }

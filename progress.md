@@ -113,3 +113,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Removed 5-line block from `renderer.ts` that drew score and level name as canvas text overlays. Moved `<button id="pause-btn">` from inside `#canvas-wrapper` to the end of `#stats` in `index.html`. Replaced `#pause-btn` CSS from `position: absolute` overlay to a flex item with `margin-left: auto`, using `--surface`/`--border`/`--text`/`--accent` CSS variables.
 - **Outcome**: completed — 139 unit tests pass; no browser console errors.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 15 — Per-powerup sound effects** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/powerup-sounds.plan.md`
+- **Interpretation**: Added `import type { PowerUpType }` to `audio.ts`. Replaced the single `playPowerup()` with five private sound functions and a `playPowerup(type: PowerUpType)` dispatcher: `speed_boost` → 3 rising square beeps (600/750/900 Hz, 55 ms); `slow_down` → descending sine sweep (460→200 Hz, 500 ms); `score_multiplier` → two-note coin jingle (C5/G5 sine, 100 ms); `shrink` → downward sawtooth zip (1100→120 Hz, 200 ms); `ghost_mode` → detuned shimmer cluster (440/447/434 Hz sine, 650 ms). In `main.ts`, added `prevActiveEffects` snapshot; detection block now plays `'shrink'` when snake shrank, or finds the newly-added effect type and plays accordingly.
+- **Outcome**: completed — 140 tests pass; `npm run build` clean.
+- **User feedback**: Not yet recorded.
