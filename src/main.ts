@@ -1,32 +1,92 @@
 import { createGame, tick, queueDirection, setPhase } from './game';
 import { getLevel } from './levels';
+import { getSize } from './sizes';
 import { keyToDirection, shouldPreventDefault } from './input';
 import { render, DEFAULT_CONFIG } from './renderer';
+import { loadScoreboard, addEntry, type ScoreEntry } from './scoreboard';
 import type { GameState } from './types';
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 const scoreEl = document.getElementById('score')!;
 const difficultyButtons = document.querySelectorAll<HTMLButtonElement>('#difficulty button');
+const sizeButtons = document.querySelectorAll<HTMLButtonElement>('#size button');
+const nameEntryEl = document.getElementById('name-entry') as HTMLElement;
+const nameInputEl = document.getElementById('name-input') as HTMLInputElement;
+const nameSubmitEl = document.getElementById('name-submit') as HTMLButtonElement;
+const nameSkipEl = document.getElementById('name-skip') as HTMLButtonElement;
+const scoreBodyEl = document.getElementById('score-body') as HTMLTableSectionElement;
+const noScoresEl = document.getElementById('no-scores') as HTMLElement;
+const scoreTableEl = document.getElementById('score-table') as HTMLTableElement;
 
-const GRID = { x: 20, y: 20 };
 let levelId = new URLSearchParams(location.search).get('level') ?? 'easy';
+let sizeId = new URLSearchParams(location.search).get('size') ?? 'small';
+let grid = getSize(sizeId).grid;
 
-let state: GameState = createGame(getLevel(levelId), GRID);
+let state: GameState = createGame(getLevel(levelId), grid);
+let prevPhase = state.phase;
 
 function setActiveButton(id: string): void {
   difficultyButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.level === id));
+}
+
+function setActiveSizeButton(id: string): void {
+  sizeButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.size === id));
+}
+
+function renderScoreboard(): void {
+  const entries = loadScoreboard();
+  scoreBodyEl.innerHTML = '';
+  if (entries.length === 0) {
+    scoreTableEl.hidden = true;
+    noScoresEl.hidden = false;
+  } else {
+    scoreTableEl.hidden = false;
+    noScoresEl.hidden = true;
+    entries.forEach((e, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i + 1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.date}</td>`;
+      scoreBodyEl.appendChild(tr);
+    });
+  }
+}
+
+function fitCanvas(): void {
+  const scale = Math.min(window.innerWidth / canvas.width, window.innerHeight / canvas.height, 1);
+  canvas.style.width  = `${Math.round(canvas.width  * scale)}px`;
+  canvas.style.height = `${Math.round(canvas.height * scale)}px`;
+}
+
+function applySize(id: string): void {
+  const cfg = getSize(id);
+  grid = cfg.grid;
+  canvas.width  = cfg.grid.x * DEFAULT_CONFIG.cellSize;
+  canvas.height = cfg.grid.y * DEFAULT_CONFIG.cellSize;
+  fitCanvas();
+  state = createGame(getLevel(levelId), grid);
 }
 
 difficultyButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
     levelId = btn.dataset.level!;
     setActiveButton(levelId);
-    state = createGame(getLevel(levelId), GRID);
+    state = createGame(getLevel(levelId), grid);
+  });
+});
+
+sizeButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    sizeId = btn.dataset.size!;
+    setActiveSizeButton(sizeId);
+    applySize(sizeId);
   });
 });
 
 setActiveButton(levelId);
+setActiveSizeButton(sizeId);
+applySize(sizeId);
+
+window.addEventListener('resize', fitCanvas);
 
 let lastTimestamp = 0;
 let accumulator = 0;
@@ -43,6 +103,13 @@ function loop(timestamp: number): void {
     }
   }
 
+  if (state.phase === 'gameover' && prevPhase !== 'gameover') {
+    nameEntryEl.hidden = false;
+    nameInputEl.value = '';
+    nameInputEl.focus();
+  }
+  prevPhase = state.phase;
+
   render(ctx, state, DEFAULT_CONFIG);
   scoreEl.textContent = String(state.score);
 
@@ -58,8 +125,11 @@ window.addEventListener('keydown', (e) => {
   }
 
   if (e.key === ' ') {
+    if (document.activeElement === nameInputEl) return;
     if (state.phase === 'idle' || state.phase === 'gameover') {
-      state = setPhase(createGame(getLevel(levelId), GRID), 'playing');
+      nameEntryEl.hidden = true;
+      prevPhase = 'idle';
+      state = setPhase(createGame(getLevel(levelId), grid), 'playing');
     } else if (state.phase === 'playing') {
       state = setPhase(state, 'paused');
     } else if (state.phase === 'paused') {
@@ -67,6 +137,33 @@ window.addEventListener('keydown', (e) => {
     }
   }
 });
+
+function submitScore(): void {
+  const name = nameInputEl.value.trim();
+  if (name) {
+    const entry: ScoreEntry = {
+      name,
+      score: state.score,
+      date: new Date().toISOString().slice(0, 10),
+    };
+    addEntry(entry);
+    renderScoreboard();
+  }
+  nameEntryEl.hidden = true;
+}
+
+nameSubmitEl.addEventListener('click', submitScore);
+
+nameInputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitScore();
+});
+
+nameSkipEl.addEventListener('click', () => {
+  nameEntryEl.hidden = true;
+  renderScoreboard();
+});
+
+renderScoreboard();
 
 if (import.meta.env.DEV) {
   (window as unknown as Record<string, unknown>)['__snakeDebug'] = {

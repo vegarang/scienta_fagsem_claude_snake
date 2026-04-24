@@ -41,3 +41,19 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: The previous fix (Task 4) introduced a new problem: `queueDirection` validated against `state.direction` (committed), so a rapid sequence like UP → RIGHT → DOWN would reject DOWN because `OPPOSITE[UP] = DOWN`, even though DOWN is valid from the queued RIGHT. Root fix: replace the single `pendingDirection` slot with a 2-entry `directionQueue`. Validation now checks against the last entry in the queue (falling back to `direction`), so each keypress is validated relative to what the snake will actually be doing when that input takes effect.
 - **Outcome**: Completed — `types.ts` replaces `pendingDirection: Direction` with `directionQueue: readonly Direction[]`; `game.ts` updated `createGame`, `queueDirection`, and `tick`; `game.test.ts` rewritten with 61 passing tests including a dedicated "rapid turn fix" test.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 6 — Game area size selector** (2026-04-24)
+- **Command**: Implement game area size selector (Small 400×400, Medium 780×440, Large 1060×600) with CSS scaling
+- **Interpretation**: Created `src/sizes.ts` with `SizeConfig`, `SIZES`, and `getSize` mirroring the levels pattern. Added `#size` button group to `index.html` HUD (after difficulty, with identical CSS). Updated `src/main.ts` to read `?size=` URL param, added `fitCanvas()` for CSS scaling on viewport resize, `applySize()` to resize canvas and reset game, and wired click handlers for the new buttons.
+- **Outcome**: Completed — 61 unit tests pass; pre-existing TypeScript errors in `src/game.ts` and `e2e/` specs are unrelated to these changes.
+- **User feedback**: Not yet recorded.
+
+---
+
+**Task 7 — Persistent scoreboard** (2026-04-24)
+- **Command**: Implement scoreboard feature from `.air/plans/scoreboard.plan.md`
+- **Interpretation**: Created `src/scoreboard.ts` with `ScoreEntry`, `loadScoreboard`, and `addEntry` (localStorage, max 10 entries sorted by score desc). Added name-entry form (hidden by default, shown on gameover) and scoreboard table (always visible) to `index.html` with matching dark-theme CSS. Wired up in `src/main.ts`: `prevPhase` tracking to detect gameover transition, spacebar guard when name input is focused, submit/skip handlers, and `renderScoreboard()` called on load and after each interaction.
+- **Outcome**: Completed — 61 unit tests pass.
+- **User feedback**: Not yet recorded.
