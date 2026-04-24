@@ -45,6 +45,14 @@ Level picks up automatically via the `?level=<id>` URL param.
 Append `?level=easy`, `?level=medium`, or `?level=hard` to the URL.
 Default is `easy`.
 
+## Code quality
+
+- **Linting**: `npm run lint` — ESLint + typescript-eslint (flat config in `eslint.config.js`)
+- **Coverage thresholds**: 80% lines/functions, 75% branches (`src/renderer.ts` and `src/main.ts` excluded as browser-only)
+- **No magic numbers**: use named constants at the top of each file (see `walls.ts` for example)
+- **localStorage reads**: always use a type guard (`isValidThemeId`, `isValidColorMode`) before casting; invalid values fall back to defaults
+- **Grid iteration**: use `allCells(gridSize)` from `src/snake.ts` instead of nested `for` loops over the grid
+
 ## Maintaining progress.md
 
 After every completed task, append an entry to `progress.md` in the project root using this format:

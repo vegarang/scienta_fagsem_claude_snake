@@ -89,3 +89,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Added five powerup types (speed_boost, slow_down, score_multiplier, shrink, ghost_mode). Created `src/powerups.ts` with constants and `placePowerUp()`. Extended `GameState` with `powerups`, `activeEffects`, `powerupSpawnCountdown`. Updated `tick()` for aging, ghost-mode bypass, powerup collision, score multiplier, and spawn countdown. Added `getEffectiveTickInterval()` used in the game loop. Renderer draws each powerup as a colored circle with emoji label, plus a bottom-left HUD showing active effect progress bars. Also fixed two pre-existing bugs: `.at(-1)` replaced for ES2020 compat, and stale `pendingDirection` references in e2e tests updated to `directionQueue`.
 - **Outcome**: Completed — 73 unit tests pass; `tsc && vite build` succeeds cleanly.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 12 — Code quality & maintainability improvements** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/what-would-you-do-calm-willow.plan.md`
+- **Interpretation**: Added ESLint (flat config with typescript-eslint), coverage thresholds (80%/75%), and Firefox to Playwright. Named constants replaced magic numbers in `walls.ts`. Added `isValidThemeId`/`isValidColorMode` type guards in `main.ts` for safe localStorage reads. Added `allCells(gridSize)` utility to `snake.ts` and refactored `food.ts` and `powerups.ts` to use it. Created four new test files: `input.test.ts`, `scoreboard.test.ts`, `themes.test.ts`, `sizes.test.ts`. Fixed five pre-existing unused-import/variable lint errors in `game.test.ts` and `walls.test.ts`. Updated `CLAUDE.md` with a Code quality section.
+- **Outcome**: completed — 139 tests pass; `npm run lint` exits 0; coverage 94.83% lines / 84.03% branches / 100% functions (thresholds 80%/75% met).
+- **User feedback**: Not yet recorded.

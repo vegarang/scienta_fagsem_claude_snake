@@ -1,12 +1,17 @@
 import type { Vec2, Direction, ExtraWall, GameState, LevelConfig } from './types';
 import { hitsExtraWall, samePos } from './snake';
 
+const MIN_WALL_FRACTION = 0.25;
+const MAX_WALL_FRACTION = 0.70;
+const SNAKE_SAFE_RADIUS = 5;
+const LOOK_AHEAD_CELLS = 8;
+
 export function generateInitialWalls(level: LevelConfig, gridSize: Vec2): readonly ExtraWall[] {
   if (level.id !== 'hard') return [];
-  const x1 = Math.floor(gridSize.x * 0.25);
-  const x2 = Math.floor(gridSize.x * 0.70);
-  const y1 = Math.floor(gridSize.y * 0.25);
-  const y2 = Math.floor(gridSize.y * 0.70);
+  const x1 = Math.floor(gridSize.x * MIN_WALL_FRACTION);
+  const x2 = Math.floor(gridSize.x * MAX_WALL_FRACTION);
+  const y1 = Math.floor(gridSize.y * MIN_WALL_FRACTION);
+  const y2 = Math.floor(gridSize.y * MAX_WALL_FRACTION);
   return [
     { from: { x: x1, y: y1 }, to: { x: x1, y: y2 } },
     { from: { x: x2, y: y1 }, to: { x: x2, y: y2 } },
@@ -17,11 +22,11 @@ function chebyshev(a: Vec2, b: Vec2): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
-function isTooCloseToHead(pos: Vec2, head: Vec2, safeRadius = 5): boolean {
+function isTooCloseToHead(pos: Vec2, head: Vec2, safeRadius = SNAKE_SAFE_RADIUS): boolean {
   return chebyshev(pos, head) < safeRadius;
 }
 
-function isInLookAheadZone(pos: Vec2, head: Vec2, direction: Direction, lookAhead = 8): boolean {
+function isInLookAheadZone(pos: Vec2, head: Vec2, direction: Direction, lookAhead = LOOK_AHEAD_CELLS): boolean {
   if (direction === 'LEFT' || direction === 'RIGHT') {
     if (Math.abs(pos.y - head.y) > 1) return false;
     const minX = direction === 'RIGHT' ? head.x : head.x - lookAhead;
@@ -80,8 +85,8 @@ export function spawnWall(state: GameState, rng: () => number): ExtraWall | null
       (cell) =>
         hitsExtraWall(cell, allWalls) ||
         snake.some((s) => samePos(s, cell)) ||
-        isTooCloseToHead(cell, head, 5) ||
-        isInLookAheadZone(cell, head, direction, 8) ||
+        isTooCloseToHead(cell, head, SNAKE_SAFE_RADIUS) ||
+        isInLookAheadZone(cell, head, direction, LOOK_AHEAD_CELLS) ||
         samePos(cell, food),
     );
 

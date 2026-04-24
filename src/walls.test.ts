@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { generateInitialWalls, spawnWall } from './walls';
 import { LEVELS } from './levels';
-import { createGame, setPhase } from './game';
+import { createGame } from './game';
 import type { Vec2 } from './types';
 
 const SMALL_GRID: Vec2 = { x: 20, y: 20 };
@@ -57,8 +57,7 @@ describe('spawnWall', () => {
 
   it('returns null for easy (wallSpawnMaxLength 0) after 100 attempts', () => {
     const state = { ...createGame(LEVELS.easy, SMALL_GRID), phase: 'playing' as const };
-    let callCount = 0;
-    const rng = () => { callCount++; return 0.5; };
+    const rng = () => 0.5;
     const result = spawnWall(state, rng);
     expect(result).toBeNull();
   });

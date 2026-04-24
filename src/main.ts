@@ -29,8 +29,19 @@ const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
 
 const LS_THEME = 'snake-theme';
 const LS_MODE  = 'snake-mode';
-let currentThemeId: ThemeId = (localStorage.getItem(LS_THEME) as ThemeId) ?? DEFAULT_THEME_ID;
-let currentMode: ColorMode  = (localStorage.getItem(LS_MODE) as ColorMode) ?? DEFAULT_MODE;
+
+function isValidThemeId(v: string): v is ThemeId {
+  return Object.keys(THEMES).includes(v);
+}
+
+function isValidColorMode(v: string): v is ColorMode {
+  return v === 'light' || v === 'dark';
+}
+
+const storedTheme = localStorage.getItem(LS_THEME);
+const storedMode = localStorage.getItem(LS_MODE);
+let currentThemeId: ThemeId = storedTheme && isValidThemeId(storedTheme) ? storedTheme : DEFAULT_THEME_ID;
+let currentMode: ColorMode  = storedMode && isValidColorMode(storedMode) ? storedMode : DEFAULT_MODE;
 let rendererConfig: RendererConfig = DEFAULT_CONFIG;
 
 function applyTheme(): void {

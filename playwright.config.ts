@@ -7,8 +7,11 @@ export default defineConfig({
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
   },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+  ],
   use: {
     baseURL: 'http://localhost:5173',
-    ...devices['Desktop Chrome'],
   },
 });

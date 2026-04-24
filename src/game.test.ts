@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createGame, tick, queueDirection, setPhase, getEffectiveTickInterval } from './game';
 import { LEVELS } from './levels';
-import { POWERUP_SPAWN_MIN, POWERUP_MAX_ON_BOARD, EFFECT_DURATION, SHRINK_AMOUNT } from './powerups';
-import type { GameState, Vec2, ActiveEffect, PowerUp } from './types';
+import { POWERUP_SPAWN_MIN, EFFECT_DURATION } from './powerups';
+import type { GameState, Vec2, PowerUp } from './types';
 
 const GRID: Vec2 = { x: 20, y: 20 };
 const easyLevel = LEVELS.easy;

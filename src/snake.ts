@@ -56,3 +56,11 @@ export function hitsExtraWall(pos: Vec2, walls: readonly ExtraWall[]): boolean {
       pos.y <= Math.max(w.from.y, w.to.y),
   );
 }
+
+export function allCells(gridSize: Vec2): Vec2[] {
+  const cells: Vec2[] = [];
+  for (let x = 0; x < gridSize.x; x++)
+    for (let y = 0; y < gridSize.y; y++)
+      cells.push({ x, y });
+  return cells;
+}

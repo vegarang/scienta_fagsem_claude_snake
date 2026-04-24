@@ -1,5 +1,5 @@
 import type { Vec2, ExtraWall, PowerUpType, PowerUp } from './types';
-import { samePos, hitsExtraWall } from './snake';
+import { samePos, hitsExtraWall, allCells } from './snake';
 
 export const POWERUP_SPAWN_MIN = 25;
 export const POWERUP_SPAWN_MAX = 50;
@@ -24,20 +24,13 @@ export function placePowerUp(
   gridSize: Vec2,
   rng: () => number = Math.random,
 ): PowerUp | null {
-  const candidates: Vec2[] = [];
-  for (let x = 0; x < gridSize.x; x++) {
-    for (let y = 0; y < gridSize.y; y++) {
-      const pos = { x, y };
-      if (
-        !snake.some((s) => samePos(s, pos)) &&
-        !hitsExtraWall(pos, walls) &&
-        !powerups.some((p) => samePos(p.pos, pos)) &&
-        !samePos(pos, food)
-      ) {
-        candidates.push(pos);
-      }
-    }
-  }
+  const candidates = allCells(gridSize).filter(
+    (pos) =>
+      !snake.some((s) => samePos(s, pos)) &&
+      !hitsExtraWall(pos, walls) &&
+      !powerups.some((p) => samePos(p.pos, pos)) &&
+      !samePos(pos, food),
+  );
   if (candidates.length === 0) return null;
   const pos = candidates[Math.floor(rng() * candidates.length)];
   const type = POWERUP_TYPES[Math.floor(rng() * POWERUP_TYPES.length)];
