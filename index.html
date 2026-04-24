@@ -12,10 +12,51 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
+        padding: 12px 0;
+        overflow-y: auto;
         gap: 8px;
         font-family: monospace;
         color: #fff;
+      }
+      #page-title {
+        font-size: 20px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #4caf50;
+        margin: 0;
+      }
+      #game-intro {
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin: 0;
+        max-width: 420px;
+        line-height: 1.6;
+      }
+      #stats {
+        display: flex;
+        gap: 12px;
+      }
+      .stat {
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 6px 16px;
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .stat-value {
+        font-size: 18px;
+        color: #4caf50;
+        letter-spacing: 0;
+        text-transform: none;
       }
       canvas {
         background: #000;
@@ -127,8 +168,17 @@
     </style>
   </head>
   <body>
+    <h1 id="page-title">Play Snake</h1>
+    <p id="game-intro">
+      Guide the snake to eat food, grow longer, and rack up points.<br>
+      Arrow keys or WASD to steer &middot; Space to start, pause, or restart
+    </p>
+    <div id="stats">
+      <div class="stat">Score<span class="stat-value" id="score" data-testid="score">0</span></div>
+      <div class="stat">Difficulty<span class="stat-value" id="stat-difficulty">Easy</span></div>
+    </div>
+    <canvas id="game-canvas" data-testid="game-canvas"></canvas>
     <div id="hud">
-      <span>Score: <span id="score" data-testid="score">0</span></span>
       <div id="difficulty">
         <select id="difficulty-select" aria-label="Difficulty">
           <option value="easy">Easy</option>
@@ -144,7 +194,6 @@
         </select>
       </div>
     </div>
-    <canvas id="game-canvas" data-testid="game-canvas"></canvas>
     <section id="name-entry" hidden>
       <p>Enter your name for the scoreboard:</p>
       <div id="name-entry-controls">

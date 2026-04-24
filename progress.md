@@ -65,3 +65,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Replaced both button groups in `index.html` with `<select>` elements (`#difficulty-select`, `#size-select`). Removed `setActiveButton` and `setActiveSizeButton` helpers from `src/main.ts`; replaced `click` listeners on NodeLists with `change` listeners on the two selects; initial `.value` set from URL params. Removed button-group CSS, added matching dark-theme select styles.
 - **Outcome**: Completed — 61 unit tests pass; no E2E selector changes needed (tests didn't reference old buttons).
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 9 — Page header, ingress, and stats panel** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/i-want-a-page-header-shiny-blum.plan.md`
+- **Interpretation**: Added `<h1 id="page-title">Play Snake</h1>`, `<p id="game-intro">` description with controls hint, and `<div id="stats">` with score and difficulty chips above the canvas. Moved `#hud` (selectors only, score removed) below the canvas. Added CSS for all new elements; updated `body` to `min-height: 100vh` + `padding` + `overflow-y: auto`. Wired `#stat-difficulty` chip to update on difficulty select change in `main.ts`.
+- **Outcome**: Completed — 61 unit tests pass; layout verified visually.
+- **User feedback**: Not yet recorded.

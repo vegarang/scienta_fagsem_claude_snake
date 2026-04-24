@@ -9,6 +9,7 @@ import type { GameState } from './types';
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 const scoreEl = document.getElementById('score')!;
+const statDifficultyEl = document.getElementById('stat-difficulty')!;
 const difficultySelect = document.querySelector<HTMLSelectElement>('#difficulty-select')!;
 const sizeSelect = document.querySelector<HTMLSelectElement>('#size-select')!;
 const nameEntryEl = document.getElementById('name-entry') as HTMLElement;
@@ -63,6 +64,7 @@ sizeSelect.value = sizeId;
 
 difficultySelect.addEventListener('change', () => {
   levelId = difficultySelect.value;
+  statDifficultyEl.textContent = getLevel(levelId).name;
   state = createGame(getLevel(levelId), grid);
 });
 
