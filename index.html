@@ -24,12 +24,41 @@
         display: flex;
         gap: 24px;
         font-size: 14px;
+        align-items: center;
+      }
+      #difficulty {
+        display: flex;
+        gap: 6px;
+      }
+      #difficulty button {
+        background: #333;
+        color: #aaa;
+        border: 1px solid #555;
+        border-radius: 4px;
+        padding: 3px 10px;
+        font-family: monospace;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      #difficulty button:hover {
+        background: #444;
+        color: #fff;
+      }
+      #difficulty button.active {
+        background: #4caf50;
+        color: #fff;
+        border-color: #4caf50;
       }
     </style>
   </head>
   <body>
     <div id="hud">
       <span>Score: <span id="score" data-testid="score">0</span></span>
+      <div id="difficulty">
+        <button data-level="easy" class="active">Easy</button>
+        <button data-level="medium">Medium</button>
+        <button data-level="hard">Hard</button>
+      </div>
     </div>
     <canvas id="game-canvas" width="400" height="400" data-testid="game-canvas"></canvas>
     <script type="module" src="/src/main.ts"></script>

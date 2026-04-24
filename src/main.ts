@@ -7,11 +7,26 @@ import type { GameState } from './types';
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 const scoreEl = document.getElementById('score')!;
+const difficultyButtons = document.querySelectorAll<HTMLButtonElement>('#difficulty button');
 
 const GRID = { x: 20, y: 20 };
-const levelId = new URLSearchParams(location.search).get('level') ?? 'easy';
+let levelId = new URLSearchParams(location.search).get('level') ?? 'easy';
 
 let state: GameState = createGame(getLevel(levelId), GRID);
+
+function setActiveButton(id: string): void {
+  difficultyButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.level === id));
+}
+
+difficultyButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    levelId = btn.dataset.level!;
+    setActiveButton(levelId);
+    state = createGame(getLevel(levelId), GRID);
+  });
+});
+
+setActiveButton(levelId);
 
 let lastTimestamp = 0;
 let accumulator = 0;
