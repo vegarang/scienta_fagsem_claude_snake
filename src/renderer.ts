@@ -55,6 +55,16 @@ function drawWalls(
   }
 }
 
+function drawBoundaryWall(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  color: string,
+): void {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+}
+
 function drawOverlay(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
@@ -224,6 +234,10 @@ export function render(
 
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (state.level.wallBehavior === 'die') {
+    drawBoundaryWall(ctx, canvas, colors.wall);
+  }
 
   drawWalls(ctx, state.level.extraWalls, cellSize, colors.wall);
 
