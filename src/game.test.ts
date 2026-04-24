@@ -37,23 +37,29 @@ describe('createGame', () => {
 
 describe('queueDirection', () => {
   it('queues a valid direction', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'RIGHT' });
-    expect(queueDirection(state, 'UP').pendingDirection).toBe('UP');
+    const state = playingGame({ direction: 'RIGHT', directionQueue: [] });
+    expect(queueDirection(state, 'UP').directionQueue).toEqual(['UP']);
   });
 
-  it('rejects a 180-degree reversal', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'RIGHT' });
-    expect(queueDirection(state, 'LEFT').pendingDirection).toBe('RIGHT');
+  it('rejects a 180-degree reversal against current direction', () => {
+    const state = playingGame({ direction: 'RIGHT', directionQueue: [] });
+    expect(queueDirection(state, 'LEFT').directionQueue).toEqual([]);
   });
 
-  it('rejects reversal even when pendingDirection differs from direction', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'DOWN' });
-    expect(queueDirection(state, 'LEFT').pendingDirection).toBe('DOWN');
+  it('rejects reversal against last queued direction', () => {
+    const state = playingGame({ direction: 'RIGHT', directionQueue: ['DOWN'] });
+    expect(queueDirection(state, 'UP').directionQueue).toEqual(['DOWN']);
   });
 
-  it('allows perpendicular direction once prior turn is committed', () => {
-    const state = playingGame({ direction: 'UP', pendingDirection: 'UP' });
-    expect(queueDirection(state, 'LEFT').pendingDirection).toBe('LEFT');
+  it('allows turn valid relative to queued direction (rapid turn fix)', () => {
+    // direction=UP but RIGHT is queued; DOWN is valid from RIGHT, must not be lost
+    const state = playingGame({ direction: 'UP', directionQueue: ['RIGHT'] });
+    expect(queueDirection(state, 'DOWN').directionQueue).toEqual(['RIGHT', 'DOWN']);
+  });
+
+  it('ignores a 4th rapid press when queue is full', () => {
+    const state = playingGame({ direction: 'RIGHT', directionQueue: ['DOWN', 'LEFT'] });
+    expect(queueDirection(state, 'UP').directionQueue).toEqual(['DOWN', 'LEFT']);
   });
 });
 
@@ -81,7 +87,7 @@ describe('tick', () => {
   });
 
   it('moves the snake forward one cell per tick', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'RIGHT' });
+    const state = playingGame({ direction: 'RIGHT', directionQueue: [] });
     const headBefore = state.snake[0];
     const after = tick(state);
     expect(after.snake[0].x).toBe(headBefore.x + 1);
@@ -89,16 +95,24 @@ describe('tick', () => {
     expect(after.snake.length).toBe(state.snake.length);
   });
 
-  it('commits pendingDirection on tick', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'UP' });
+  it('consumes first queued direction on tick', () => {
+    const state = playingGame({ direction: 'RIGHT', directionQueue: ['UP'] });
     const after = tick(state);
     expect(after.direction).toBe('UP');
+    expect(after.directionQueue).toEqual([]);
+  });
+
+  it('retains second queued direction after tick', () => {
+    const state = playingGame({ direction: 'RIGHT', directionQueue: ['DOWN', 'LEFT'] });
+    const after = tick(state);
+    expect(after.direction).toBe('DOWN');
+    expect(after.directionQueue).toEqual(['LEFT']);
   });
 
   it('grows snake and increments score when eating food', () => {
     const snake: Vec2[] = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }];
     const food: Vec2 = { x: 6, y: 5 };
-    const state = playingGame({ snake, food, direction: 'RIGHT', pendingDirection: 'RIGHT' });
+    const state = playingGame({ snake, food, direction: 'RIGHT', directionQueue: [] });
     const after = tick(state);
     expect(after.score).toBe(1);
     expect(after.snake.length).toBe(4);
@@ -107,7 +121,7 @@ describe('tick', () => {
   it('reduces tickInterval when eating food, clamped to minSpeed', () => {
     const snake: Vec2[] = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }];
     const food: Vec2 = { x: 6, y: 5 };
-    const state = playingGame({ snake, food, direction: 'RIGHT', pendingDirection: 'RIGHT' });
+    const state = playingGame({ snake, food, direction: 'RIGHT', directionQueue: [] });
     const after = tick(state);
     expect(after.tickInterval).toBe(easyLevel.initialSpeed - easyLevel.speedIncrement);
   });
@@ -119,7 +133,7 @@ describe('tick', () => {
       snake,
       food,
       direction: 'RIGHT',
-      pendingDirection: 'RIGHT',
+      directionQueue: [],
       tickInterval: easyLevel.minSpeed + 1,
     });
     const after = tick(state);
@@ -136,7 +150,7 @@ describe('tick', () => {
       { x: 6, y: 6 },
       { x: 6, y: 5 }, // tail — removed during move, so collision still detected
     ];
-    const state = playingGame({ snake, pendingDirection: 'DOWN' });
+    const state = playingGame({ snake, directionQueue: ['DOWN'] });
     const after = tick(state);
     expect(after.phase).toBe('gameover');
   });
@@ -144,7 +158,7 @@ describe('tick', () => {
   it('sets phase to gameover on wall collision in die mode', () => {
     const snake: Vec2[] = [{ x: 0, y: 5 }, { x: 1, y: 5 }, { x: 2, y: 5 }];
     const state = {
-      ...playingGame({ snake, pendingDirection: 'LEFT' }),
+      ...playingGame({ snake, directionQueue: ['LEFT'] }),
       level: mediumLevel,
     };
     const after = tick(state);
@@ -153,7 +167,7 @@ describe('tick', () => {
 
   it('wraps around in easy mode without gameover', () => {
     const snake: Vec2[] = [{ x: 0, y: 5 }, { x: 1, y: 5 }, { x: 2, y: 5 }];
-    const state = playingGame({ snake, pendingDirection: 'LEFT' });
+    const state = playingGame({ snake, directionQueue: ['LEFT'] });
     const after = tick(state);
     expect(after.phase).toBe('playing');
     expect(after.snake[0].x).toBe(GRID.x - 1);
@@ -162,7 +176,7 @@ describe('tick', () => {
   it('sets phase to gameover on extra wall collision', () => {
     const snake: Vec2[] = [{ x: 4, y: 7 }, { x: 3, y: 7 }, { x: 2, y: 7 }];
     const state = {
-      ...playingGame({ snake, pendingDirection: 'RIGHT' }),
+      ...playingGame({ snake, directionQueue: ['RIGHT'] }),
       level: LEVELS.hard,
     };
     const after = tick(state);
