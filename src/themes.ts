@@ -42,7 +42,7 @@ const classic: Theme = {
   label: 'Classic',
   dark: {
     canvas: {
-      background: '#000000', snakeHead: '#00ff88', snakeBody: '#00cc66',
+      background: '#1a3a1a', snakeHead: '#00ff88', snakeBody: '#00cc66',
       food: '#e63030', foodStem: '#7a4000', foodLeaf: '#3aaa3a',
       wall: '#888888', text: '#ffffff', overlay: 'rgba(0,0,0,0.6)',
     },
@@ -71,7 +71,7 @@ const ocean: Theme = {
   label: 'Ocean',
   dark: {
     canvas: {
-      background: '#050d1a', snakeHead: '#00e5ff', snakeBody: '#0099bb',
+      background: '#0f2540', snakeHead: '#00e5ff', snakeBody: '#0099bb',
       food: '#ff6b35', foodStem: '#7a4000', foodLeaf: '#3aaa3a',
       wall: '#3a5a7a', text: '#e0f4ff', overlay: 'rgba(5,13,26,0.7)',
     },
@@ -100,7 +100,7 @@ const sunset: Theme = {
   label: 'Sunset',
   dark: {
     canvas: {
-      background: '#1a0a00', snakeHead: '#ff7733', snakeBody: '#cc5500',
+      background: '#301800', snakeHead: '#ff7733', snakeBody: '#cc5500',
       food: '#ffdd00', foodStem: '#7a4000', foodLeaf: '#3aaa3a',
       wall: '#7a4422', text: '#ffe8cc', overlay: 'rgba(26,10,0,0.7)',
     },
@@ -129,7 +129,7 @@ const forest: Theme = {
   label: 'Forest',
   dark: {
     canvas: {
-      background: '#0a1200', snakeHead: '#88cc44', snakeBody: '#558822',
+      background: '#182800', snakeHead: '#88cc44', snakeBody: '#558822',
       food: '#ff4422', foodStem: '#7a4000', foodLeaf: '#3aaa3a',
       wall: '#4a5a2a', text: '#d8eebb', overlay: 'rgba(10,18,0,0.7)',
     },
@@ -158,7 +158,7 @@ const minimal: Theme = {
   label: 'Minimal',
   dark: {
     canvas: {
-      background: '#0a0a0a', snakeHead: '#e0e0e0', snakeBody: '#999999',
+      background: '#282828', snakeHead: '#e0e0e0', snakeBody: '#999999',
       food: '#e85555', foodStem: '#7a4000', foodLeaf: '#3aaa3a',
       wall: '#555555', text: '#ffffff', overlay: 'rgba(10,10,10,0.7)',
     },
