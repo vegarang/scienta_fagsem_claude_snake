@@ -7,6 +7,19 @@ export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 export type WallBehavior = 'wrap' | 'die';
 
+export type PowerUpType = 'speed_boost' | 'slow_down' | 'score_multiplier' | 'shrink' | 'ghost_mode';
+
+export interface PowerUp {
+  readonly type: PowerUpType;
+  readonly pos: Vec2;
+  readonly expiresInTicks: number;
+}
+
+export interface ActiveEffect {
+  readonly type: PowerUpType;
+  readonly remainingTicks: number;
+}
+
 export type GamePhase = 'idle' | 'playing' | 'paused' | 'gameover';
 
 export interface ExtraWall {
@@ -38,4 +51,7 @@ export interface GameState {
   readonly level: LevelConfig;
   readonly gridSize: Vec2;
   readonly dynamicWalls: readonly ExtraWall[];
+  readonly powerups: readonly PowerUp[];
+  readonly activeEffects: readonly ActiveEffect[];
+  readonly powerupSpawnCountdown: number;
 }

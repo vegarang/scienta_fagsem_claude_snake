@@ -43,7 +43,7 @@ test.describe('Gameplay', () => {
     expect(dirBefore).toBe('RIGHT');
 
     await page.keyboard.press('ArrowUp');
-    const pending = await page.evaluate(() => window.__snakeDebug.getState().pendingDirection);
+    const pending = await page.evaluate(() => window.__snakeDebug.getState().directionQueue[0]);
     expect(pending).toBe('UP');
   });
 
@@ -57,7 +57,6 @@ test.describe('Gameplay', () => {
         ...state,
         snake: [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }],
         direction: 'RIGHT',
-        pendingDirection: 'RIGHT',
         food: { x: 6, y: 10 },
       });
     });

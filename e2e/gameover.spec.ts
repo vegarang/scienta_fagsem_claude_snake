@@ -22,7 +22,6 @@ test.describe('Game over', () => {
         ...state,
         snake: [{ x: 19, y: 10 }, { x: 18, y: 10 }, { x: 17, y: 10 }],
         direction: 'RIGHT',
-        pendingDirection: 'RIGHT',
       });
     });
 

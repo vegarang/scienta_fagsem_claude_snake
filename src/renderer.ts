@@ -1,4 +1,5 @@
-import type { GameState, Vec2, Direction, ExtraWall } from './types';
+import type { GameState, Vec2, Direction, ExtraWall, PowerUp, ActiveEffect, PowerUpType } from './types';
+import { EFFECT_DURATION } from './powerups';
 
 export interface RendererConfig {
   cellSize: number;
@@ -111,6 +112,81 @@ function drawApple(ctx: CanvasRenderingContext2D, food: Vec2, cellSize: number, 
   ctx.beginPath();
   ctx.ellipse(cx - 3, cy - 2, 3, 2, -Math.PI / 5, 0, Math.PI * 2);
   ctx.fill();
+}
+
+const POWERUP_COLORS: Record<PowerUpType, string> = {
+  speed_boost: '#FFD700',
+  slow_down: '#00BFFF',
+  score_multiplier: '#FF69B4',
+  shrink: '#7CFC00',
+  ghost_mode: '#9370DB',
+};
+
+const POWERUP_LABELS: Record<PowerUpType, string> = {
+  speed_boost: '⚡',
+  slow_down: '❄',
+  score_multiplier: '×2',
+  shrink: '✂',
+  ghost_mode: '◈',
+};
+
+function drawPowerUp(ctx: CanvasRenderingContext2D, powerup: PowerUp, cellSize: number): void {
+  const cx = powerup.pos.x * cellSize + cellSize / 2;
+  const cy = powerup.pos.y * cellSize + cellSize / 2;
+  const r = cellSize / 2 - 2;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = POWERUP_COLORS[powerup.type];
+  ctx.fill();
+
+  ctx.fillStyle = '#000000';
+  ctx.font = `bold ${Math.floor(cellSize * 0.5)}px monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(POWERUP_LABELS[powerup.type], cx, cy);
+  ctx.textBaseline = 'alphabetic';
+}
+
+type RRCtx = CanvasRenderingContext2D & { roundRect: (x: number, y: number, w: number, h: number, r: number) => void };
+
+function drawEffectsHUD(
+  ctx: CanvasRenderingContext2D,
+  activeEffects: readonly ActiveEffect[],
+  canvas: HTMLCanvasElement,
+): void {
+  if (activeEffects.length === 0) return;
+
+  const pillW = 52;
+  const pillH = 20;
+  const gap = 4;
+  const baseY = canvas.height - gap - pillH;
+
+  for (let i = 0; i < activeEffects.length; i++) {
+    const effect = activeEffects[i];
+    const x = gap + i * (pillW + gap);
+    const color = POWERUP_COLORS[effect.type];
+    const progress = effect.remainingTicks / EFFECT_DURATION;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    (ctx as RRCtx).roundRect(x, baseY, pillW, pillH, 4);
+    ctx.fill();
+
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    (ctx as RRCtx).roundRect(x, baseY, Math.max(2, pillW * progress), pillH, 4);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(POWERUP_LABELS[effect.type], x + pillW / 2, baseY + pillH / 2);
+    ctx.textBaseline = 'alphabetic';
+  }
 }
 
 function leadingOffset(dir: Direction): { dx: number; dy: number } {
@@ -247,7 +323,13 @@ export function render(
 
   drawApple(ctx, state.food, cellSize, colors);
 
+  for (const powerup of state.powerups) {
+    drawPowerUp(ctx, powerup, cellSize);
+  }
+
   drawSnake(ctx, state.snake, state.direction, cellSize, colors);
+
+  drawEffectsHUD(ctx, state.activeEffects, canvas);
 
   ctx.fillStyle = colors.text;
   ctx.textAlign = 'left';

@@ -1,4 +1,4 @@
-import { createGame, tick, queueDirection, setPhase } from './game';
+import { createGame, tick, queueDirection, setPhase, getEffectiveTickInterval } from './game';
 import { getLevel } from './levels';
 import { getSize } from './sizes';
 import { keyToDirection, shouldPreventDefault } from './input';
@@ -119,8 +119,8 @@ function loop(timestamp: number): void {
   lastTimestamp = timestamp;
   accumulator += delta;
 
-  while (accumulator >= state.tickInterval) {
-    accumulator -= state.tickInterval;
+  while (accumulator >= getEffectiveTickInterval(state)) {
+    accumulator -= getEffectiveTickInterval(state);
     if (state.phase === 'playing') {
       state = tick(state);
     }

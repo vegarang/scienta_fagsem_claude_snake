@@ -1,0 +1,45 @@
+import type { Vec2, ExtraWall, PowerUpType, PowerUp } from './types';
+import { samePos, hitsExtraWall } from './snake';
+
+export const POWERUP_SPAWN_MIN = 25;
+export const POWERUP_SPAWN_MAX = 50;
+export const POWERUP_BOARD_DURATION = 30;
+export const EFFECT_DURATION = 15;
+export const POWERUP_MAX_ON_BOARD = 1;
+export const SHRINK_AMOUNT = 3;
+
+export const POWERUP_TYPES: PowerUpType[] = [
+  'speed_boost',
+  'slow_down',
+  'score_multiplier',
+  'shrink',
+  'ghost_mode',
+];
+
+export function placePowerUp(
+  snake: readonly Vec2[],
+  walls: readonly ExtraWall[],
+  powerups: readonly PowerUp[],
+  food: Vec2,
+  gridSize: Vec2,
+  rng: () => number = Math.random,
+): PowerUp | null {
+  const candidates: Vec2[] = [];
+  for (let x = 0; x < gridSize.x; x++) {
+    for (let y = 0; y < gridSize.y; y++) {
+      const pos = { x, y };
+      if (
+        !snake.some((s) => samePos(s, pos)) &&
+        !hitsExtraWall(pos, walls) &&
+        !powerups.some((p) => samePos(p.pos, pos)) &&
+        !samePos(pos, food)
+      ) {
+        candidates.push(pos);
+      }
+    }
+  }
+  if (candidates.length === 0) return null;
+  const pos = candidates[Math.floor(rng() * candidates.length)];
+  const type = POWERUP_TYPES[Math.floor(rng() * POWERUP_TYPES.length)];
+  return { type, pos, expiresInTicks: POWERUP_BOARD_DURATION };
+}

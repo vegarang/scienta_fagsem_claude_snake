@@ -81,3 +81,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Created `src/themes.ts` (5 themes × 2 modes = 10 canvas + CSS palettes), `src/style.css` (CSS custom properties, full page styling). Extended `src/renderer.ts` `RendererConfig.colors` with `foodStem`/`foodLeaf` and threaded them into `drawApple`. Rewrote `index.html` removing inline `<style>`, adding `data-theme`/`data-mode` on `<html>`, and a `<header>` with swatch buttons + mode toggle. Updated `src/main.ts` to import CSS and themes, added `applyTheme()` function, `localStorage` persistence, and event wiring for swatches and mode toggle.
 - **Outcome**: Completed — 61 unit tests pass; no new TypeScript errors (pre-existing errors in e2e specs and game.ts are unrelated); app loads cleanly in browser.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 11 — Powerups system** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/i-want-to-add-elegant-mountain.plan.md`
+- **Interpretation**: Added five powerup types (speed_boost, slow_down, score_multiplier, shrink, ghost_mode). Created `src/powerups.ts` with constants and `placePowerUp()`. Extended `GameState` with `powerups`, `activeEffects`, `powerupSpawnCountdown`. Updated `tick()` for aging, ghost-mode bypass, powerup collision, score multiplier, and spawn countdown. Added `getEffectiveTickInterval()` used in the game loop. Renderer draws each powerup as a colored circle with emoji label, plus a bottom-left HUD showing active effect progress bars. Also fixed two pre-existing bugs: `.at(-1)` replaced for ES2020 compat, and stale `pendingDirection` references in e2e tests updated to `directionQueue`.
+- **Outcome**: Completed — 73 unit tests pass; `tsc && vite build` succeeds cleanly.
+- **User feedback**: Not yet recorded.
