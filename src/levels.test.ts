@@ -25,8 +25,8 @@ describe('LEVELS', () => {
     expect(LEVELS.hard.wallBehavior).toBe('die');
   });
 
-  it('hard level has at least one extraWall', () => {
-    expect(LEVELS.hard.extraWalls.length).toBeGreaterThan(0);
+  it('hard level has wallSpawnInterval > 0', () => {
+    expect(LEVELS.hard.wallSpawnInterval).toBeGreaterThan(0);
   });
 
   it('easy level has no extraWalls', () => {

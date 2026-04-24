@@ -9,6 +9,9 @@ export const LEVELS: Record<string, LevelConfig> = {
     initialSpeed: 200,
     speedIncrement: 5,
     minSpeed: 80,
+    wallSpawnScore: 0,
+    wallSpawnInterval: 0,
+    wallSpawnMaxLength: 0,
   },
   medium: {
     id: 'medium',
@@ -18,18 +21,21 @@ export const LEVELS: Record<string, LevelConfig> = {
     initialSpeed: 150,
     speedIncrement: 8,
     minSpeed: 60,
+    wallSpawnScore: 5,
+    wallSpawnInterval: 5,
+    wallSpawnMaxLength: 3,
   },
   hard: {
     id: 'hard',
     name: 'Hard',
     wallBehavior: 'die',
-    extraWalls: [
-      { from: { x: 5, y: 5 }, to: { x: 5, y: 14 } },
-      { from: { x: 14, y: 5 }, to: { x: 14, y: 14 } },
-    ],
+    extraWalls: [],
     initialSpeed: 120,
     speedIncrement: 10,
     minSpeed: 50,
+    wallSpawnScore: 8,
+    wallSpawnInterval: 6,
+    wallSpawnMaxLength: 4,
   },
 };
 

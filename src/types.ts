@@ -22,6 +22,9 @@ export interface LevelConfig {
   readonly initialSpeed: number;
   readonly speedIncrement: number;
   readonly minSpeed: number;
+  readonly wallSpawnScore: number;
+  readonly wallSpawnInterval: number;
+  readonly wallSpawnMaxLength: number;
 }
 
 export interface GameState {
@@ -34,4 +37,5 @@ export interface GameState {
   readonly tickInterval: number;
   readonly level: LevelConfig;
   readonly gridSize: Vec2;
+  readonly dynamicWalls: readonly ExtraWall[];
 }

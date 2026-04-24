@@ -243,7 +243,7 @@ export function render(
     drawBoundaryWall(ctx, canvas, colors.wall);
   }
 
-  drawWalls(ctx, state.level.extraWalls, cellSize, colors.wall);
+  drawWalls(ctx, [...state.level.extraWalls, ...state.dynamicWalls], cellSize, colors.wall);
 
   drawApple(ctx, state.food, cellSize, colors);
 

@@ -178,6 +178,7 @@ describe('tick', () => {
     const state = {
       ...playingGame({ snake, directionQueue: ['RIGHT'] }),
       level: LEVELS.hard,
+      dynamicWalls: [{ from: { x: 5, y: 5 }, to: { x: 5, y: 14 } }],
     };
     const after = tick(state);
     expect(after.phase).toBe('gameover');

@@ -1,6 +1,7 @@
 import type { GameState, GamePhase, Direction, LevelConfig, Vec2 } from './types';
 import { nextHead, moveSnake, hasSelfCollision, hitsExtraWall, samePos } from './snake';
 import { placeFood } from './food';
+import { generateInitialWalls, spawnWall } from './walls';
 
 const OPPOSITE: Record<Direction, Direction> = {
   UP: 'DOWN',
@@ -21,7 +22,9 @@ function initialSnake(gridSize: Vec2): readonly Vec2[] {
 
 export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
   const snake = initialSnake(gridSize);
-  const food = placeFood(snake, level.extraWalls, gridSize);
+  const dynamicWalls = generateInitialWalls(level, gridSize);
+  const allWalls = [...level.extraWalls, ...dynamicWalls];
+  const food = placeFood(snake, allWalls, gridSize);
   return {
     phase: 'idle',
     snake,
@@ -32,6 +35,7 @@ export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
     tickInterval: level.initialSpeed,
     level,
     gridSize,
+    dynamicWalls,
   };
 }
 
@@ -53,9 +57,10 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
   const head = state.snake[0];
   const { level, gridSize } = state;
 
+  const allWalls = [...level.extraWalls, ...state.dynamicWalls];
   const newHead = nextHead(head, direction, gridSize, level.wallBehavior);
 
-  if (newHead === null || hitsExtraWall(newHead, level.extraWalls)) {
+  if (newHead === null || hitsExtraWall(newHead, allWalls)) {
     return { ...state, direction, phase: 'gameover' };
   }
 
@@ -70,7 +75,16 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
   const newInterval = ate
     ? Math.max(state.tickInterval - level.speedIncrement, level.minSpeed)
     : state.tickInterval;
-  const newFood = ate ? placeFood(newSnake, level.extraWalls, gridSize, rng) : state.food;
+  const newFood = ate ? placeFood(newSnake, allWalls, gridSize, rng) : state.food;
+
+  let newDynamicWalls = state.dynamicWalls;
+  if (ate && level.wallSpawnInterval > 0 && newScore >= level.wallSpawnScore) {
+    if ((newScore - level.wallSpawnScore) % level.wallSpawnInterval === 0) {
+      const partialState = { ...state, snake: newSnake, score: newScore };
+      const wall = spawnWall(partialState, rng);
+      if (wall) newDynamicWalls = [...state.dynamicWalls, wall];
+    }
+  }
 
   return {
     ...state,
@@ -80,5 +94,6 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
     food: newFood,
     score: newScore,
     tickInterval: newInterval,
+    dynamicWalls: newDynamicWalls,
   };
 }
