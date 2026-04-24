@@ -31,6 +31,22 @@ export const DEFAULT_CONFIG: RendererConfig = {
   },
 };
 
+export interface FloatingText {
+  x: number;
+  y: number;
+  text: string;
+  createdAt: number;
+}
+
+export interface RenderOptions {
+  floatingTexts?: FloatingText[];
+  isNewHighScore?: boolean;
+  flashSnake?: boolean;
+  suppressOverlay?: boolean;
+  countdownValue?: number;
+  now?: number;
+}
+
 function fillCell(ctx: CanvasRenderingContext2D, pos: Vec2, cellSize: number, inset = 1): void {
   ctx.fillRect(
     pos.x * cellSize + inset,
@@ -74,7 +90,7 @@ function drawOverlay(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   title: string,
-  subtitle: string,
+  lines: string[],
   colors: RendererConfig['colors'],
 ): void {
   ctx.fillStyle = colors.overlay;
@@ -87,7 +103,9 @@ function drawOverlay(
   ctx.fillText(title, canvas.width / 2, canvas.height / 2 - 20);
 
   ctx.font = '16px monospace';
-  ctx.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 16);
+  lines.forEach((line, i) => {
+    ctx.fillText(line, canvas.width / 2, canvas.height / 2 + 16 + i * 22);
+  });
 }
 
 function drawApple(ctx: CanvasRenderingContext2D, food: Vec2, cellSize: number, colors: RendererConfig['colors']): void {
@@ -207,7 +225,6 @@ function drawSnake(
 ): void {
   const CS = cellSize;
 
-  // Body segments (tail to head-1 so head renders on top)
   ctx.fillStyle = colors.snakeBody;
   for (let i = snake.length - 1; i >= 1; i--) {
     const { x, y } = snake[i];
@@ -217,22 +234,18 @@ function drawSnake(
     );
     ctx.fill();
 
-    // Fill connector between this segment and the next (towards head)
     const next = snake[i - 1];
     const dx = next.x - x;
     const dy = next.y - y;
     if (Math.abs(dx) === 1 && dy === 0) {
-      // horizontal neighbour
       const stripX = dx > 0 ? x * CS + CS - 2 : next.x * CS + CS - 2;
       ctx.fillRect(stripX, y * CS + 1, 4, CS - 2);
     } else if (Math.abs(dy) === 1 && dx === 0) {
-      // vertical neighbour
       const stripY = dy > 0 ? y * CS + CS - 2 : next.y * CS + CS - 2;
       ctx.fillRect(x * CS + 1, stripY, CS - 2, 4);
     }
   }
 
-  // Head
   if (snake.length === 0) return;
   const head = snake[0];
   const hx = head.x * CS;
@@ -247,7 +260,6 @@ function drawSnake(
   );
   ctx.fill();
 
-  // Connect head to neck
   if (snake.length > 1) {
     const neck = snake[1];
     const ndx = head.x - neck.x;
@@ -264,7 +276,6 @@ function drawSnake(
 
   const { dx, dy } = leadingOffset(direction);
 
-  // Eyes
   const perpX = dy !== 0 ? 1 : 0;
   const perpY = dx !== 0 ? 1 : 0;
   const eyeBaseX = hcx + dx * (CS / 2 - 5);
@@ -286,7 +297,6 @@ function drawSnake(
     ctx.fill();
   }
 
-  // Tongue
   const tx = hcx + dx * (CS / 2 - 1);
   const ty = hcy + dy * (CS / 2 - 1);
   ctx.strokeStyle = '#ff2255';
@@ -294,7 +304,6 @@ function drawSnake(
   ctx.beginPath();
   ctx.moveTo(tx, ty);
   ctx.lineTo(tx + dx * 4, ty + dy * 4);
-  // Fork
   const fx = tx + dx * 4;
   const fy = ty + dy * 4;
   ctx.moveTo(fx, fy);
@@ -304,10 +313,31 @@ function drawSnake(
   ctx.stroke();
 }
 
+function drawFloatingTexts(
+  ctx: CanvasRenderingContext2D,
+  texts: FloatingText[],
+  now: number,
+  colors: RendererConfig['colors'],
+): void {
+  const DURATION = 600;
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 14px monospace';
+  for (const ft of texts) {
+    const progress = Math.min((now - ft.createdAt) / DURATION, 1);
+    const opacity = 1 - progress;
+    const yOffset = progress * 28;
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = colors.text;
+    ctx.fillText(ft.text, ft.x, ft.y - yOffset);
+  }
+  ctx.globalAlpha = 1;
+}
+
 export function render(
   ctx: CanvasRenderingContext2D,
   state: GameState,
   config: RendererConfig = DEFAULT_CONFIG,
+  opts: RenderOptions = {},
 ): void {
   const { cellSize, colors } = config;
   const canvas = ctx.canvas;
@@ -327,9 +357,16 @@ export function render(
     drawPowerUp(ctx, powerup, cellSize);
   }
 
-  drawSnake(ctx, state.snake, state.direction, cellSize, colors);
+  const snakeColors = opts.flashSnake
+    ? { ...colors, snakeHead: '#ff4444', snakeBody: '#cc2222' }
+    : colors;
+  drawSnake(ctx, state.snake, state.direction, cellSize, snakeColors);
 
   drawEffectsHUD(ctx, state.activeEffects, canvas);
+
+  if (opts.floatingTexts && opts.floatingTexts.length > 0 && opts.now !== undefined) {
+    drawFloatingTexts(ctx, opts.floatingTexts, opts.now, colors);
+  }
 
   ctx.fillStyle = colors.text;
   ctx.textAlign = 'left';
@@ -337,11 +374,28 @@ export function render(
   ctx.fillText(`Score: ${state.score}`, 6, 16);
   ctx.fillText(state.level.name, canvas.width - 60, 16);
 
-  if (state.phase === 'idle') {
-    drawOverlay(ctx, canvas, 'SNAKE', 'Press Space to start', colors);
-  } else if (state.phase === 'paused') {
-    drawOverlay(ctx, canvas, 'PAUSED', 'Press Space to resume', colors);
-  } else if (state.phase === 'gameover') {
-    drawOverlay(ctx, canvas, 'GAME OVER', `Score: ${state.score} — Space to restart`, colors);
+  if (!opts.suppressOverlay) {
+    if (state.phase === 'idle') {
+      drawOverlay(ctx, canvas, 'SNAKE', ['Press Space to start'], colors);
+    } else if (state.phase === 'countdown') {
+      const val = opts.countdownValue ?? 3;
+      drawOverlay(ctx, canvas, String(val), ['Get ready…'], colors);
+    } else if (state.phase === 'paused') {
+      drawOverlay(ctx, canvas, 'PAUSED', ['Press Space to resume'], colors);
+    } else if (state.phase === 'gameover') {
+      const statsLine = `Length: ${state.maxLength} · Ticks: ${state.ticksAlive}`;
+      if (opts.isNewHighScore) {
+        drawOverlay(ctx, canvas, 'NEW HIGH SCORE!', [
+          `Score: ${state.score}`,
+          statsLine,
+          'Space to restart',
+        ], colors);
+      } else {
+        drawOverlay(ctx, canvas, 'GAME OVER', [
+          `Score: ${state.score} — Space to restart`,
+          statsLine,
+        ], colors);
+      }
+    }
   }
 }

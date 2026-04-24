@@ -16,6 +16,7 @@
           <li><button class="theme-swatch" data-theme-id="forest"  aria-label="Forest"  style="--swatch-color:#88cc44"></button></li>
           <li><button class="theme-swatch" data-theme-id="minimal" aria-label="Minimal" style="--swatch-color:#aaaaaa"></button></li>
         </ul>
+        <button id="mute-btn" aria-label="Toggle sound">🔊</button>
         <button id="mode-toggle" aria-label="Toggle light/dark mode">🌙</button>
       </div>
     </header>
@@ -27,7 +28,10 @@
       <div class="stat">Score<span class="stat-value" id="score" data-testid="score">0</span></div>
       <div class="stat">Difficulty<span class="stat-value" id="stat-difficulty">Easy</span></div>
     </div>
-    <canvas id="game-canvas" data-testid="game-canvas"></canvas>
+    <div id="canvas-wrapper">
+      <canvas id="game-canvas" data-testid="game-canvas"></canvas>
+      <button id="pause-btn" aria-label="Pause" hidden>⏸</button>
+    </div>
     <div id="hud">
       <div id="difficulty">
         <select id="difficulty-select" aria-label="Difficulty">
@@ -44,6 +48,24 @@
         </select>
       </div>
     </div>
+    <div id="touch-controls" aria-label="Touch controls">
+      <button id="btn-up" class="dpad-btn" aria-label="Up">▲</button>
+      <div id="dpad-middle">
+        <button id="btn-left" class="dpad-btn" aria-label="Left">◀</button>
+        <button id="btn-down" class="dpad-btn" aria-label="Down">▼</button>
+        <button id="btn-right" class="dpad-btn" aria-label="Right">▶</button>
+      </div>
+    </div>
+    <details id="powerup-legend">
+      <summary>Powerup Guide</summary>
+      <ul>
+        <li><span class="pu-icon pu-speed">⚡</span> <strong>Speed Boost</strong> — snake moves faster for a short time</li>
+        <li><span class="pu-icon pu-slow">❄</span> <strong>Slow Down</strong> — snake moves slower for a short time</li>
+        <li><span class="pu-icon pu-multi">×2</span> <strong>Score Multiplier</strong> — earn double points per food</li>
+        <li><span class="pu-icon pu-shrink">✂</span> <strong>Shrink</strong> — snake instantly gets shorter</li>
+        <li><span class="pu-icon pu-ghost">◈</span> <strong>Ghost Mode</strong> — pass through walls without dying</li>
+      </ul>
+    </details>
     <section id="name-entry" hidden>
       <p>Enter your name for the scoreboard:</p>
       <div id="name-entry-controls">

@@ -20,7 +20,7 @@ export interface ActiveEffect {
   readonly remainingTicks: number;
 }
 
-export type GamePhase = 'idle' | 'playing' | 'paused' | 'gameover';
+export type GamePhase = 'idle' | 'countdown' | 'playing' | 'paused' | 'gameover';
 
 export interface ExtraWall {
   readonly from: Vec2;
@@ -54,4 +54,6 @@ export interface GameState {
   readonly powerups: readonly PowerUp[];
   readonly activeEffects: readonly ActiveEffect[];
   readonly powerupSpawnCountdown: number;
+  readonly ticksAlive: number;
+  readonly maxLength: number;
 }

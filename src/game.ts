@@ -47,6 +47,8 @@ export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
     powerups: [],
     activeEffects: [],
     powerupSpawnCountdown: POWERUP_SPAWN_MIN,
+    ticksAlive: 0,
+    maxLength: snake.length,
   };
 }
 
@@ -155,5 +157,7 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
     powerups: boardPowerups,
     activeEffects,
     powerupSpawnCountdown: newCountdown,
+    ticksAlive: state.ticksAlive + 1,
+    maxLength: Math.max(state.maxLength, newSnake.length),
   };
 }
