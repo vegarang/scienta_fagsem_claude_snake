@@ -54,7 +54,7 @@ const classic: Theme = {
   },
   light: {
     canvas: {
-      background: '#e8ffe8', snakeHead: '#007744', snakeBody: '#009955',
+      background: '#c0e8c0', snakeHead: '#007744', snakeBody: '#009955',
       food: '#cc2222', foodStem: '#5a2a00', foodLeaf: '#228822',
       wall: '#666666', text: '#111111', overlay: 'rgba(255,255,255,0.6)',
     },
@@ -83,7 +83,7 @@ const ocean: Theme = {
   },
   light: {
     canvas: {
-      background: '#e8f4ff', snakeHead: '#006688', snakeBody: '#0088aa',
+      background: '#bcd8f0', snakeHead: '#006688', snakeBody: '#0088aa',
       food: '#e05a20', foodStem: '#5a2a00', foodLeaf: '#228822',
       wall: '#7799bb', text: '#0a1a2a', overlay: 'rgba(232,244,255,0.7)',
     },
@@ -112,7 +112,7 @@ const sunset: Theme = {
   },
   light: {
     canvas: {
-      background: '#fff4ee', snakeHead: '#cc4400', snakeBody: '#e05500',
+      background: '#f0d0b0', snakeHead: '#cc4400', snakeBody: '#e05500',
       food: '#cc9900', foodStem: '#5a2a00', foodLeaf: '#228822',
       wall: '#bb8866', text: '#2a1000', overlay: 'rgba(255,244,238,0.7)',
     },
@@ -141,7 +141,7 @@ const forest: Theme = {
   },
   light: {
     canvas: {
-      background: '#f0f5e8', snakeHead: '#337700', snakeBody: '#448800',
+      background: '#cce0b0', snakeHead: '#337700', snakeBody: '#448800',
       food: '#cc3311', foodStem: '#5a2a00', foodLeaf: '#228822',
       wall: '#8a9a66', text: '#1a2a00', overlay: 'rgba(240,245,232,0.7)',
     },
@@ -170,7 +170,7 @@ const minimal: Theme = {
   },
   light: {
     canvas: {
-      background: '#f5f5f5', snakeHead: '#222222', snakeBody: '#555555',
+      background: '#dcdcdc', snakeHead: '#222222', snakeBody: '#555555',
       food: '#cc2222', foodStem: '#5a2a00', foodLeaf: '#228822',
       wall: '#bbbbbb', text: '#111111', overlay: 'rgba(245,245,245,0.7)',
     },
