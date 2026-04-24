@@ -5,7 +5,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["vite/client", "node"],
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "e2e", "vitest.config.ts", "playwright.config.ts"]
 }

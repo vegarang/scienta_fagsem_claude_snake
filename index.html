@@ -9,17 +9,29 @@
         margin: 0;
         background: #1a1a1a;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100vh;
+        gap: 8px;
+        font-family: monospace;
+        color: #fff;
       }
       canvas {
         background: #000;
       }
+      #hud {
+        display: flex;
+        gap: 24px;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <canvas id="game-canvas" width="400" height="400"></canvas>
+    <div id="hud">
+      <span>Score: <span id="score" data-testid="score">0</span></span>
+    </div>
+    <canvas id="game-canvas" width="400" height="400" data-testid="game-canvas"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
