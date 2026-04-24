@@ -28,7 +28,7 @@ export interface GameState {
   readonly phase: GamePhase;
   readonly snake: readonly Vec2[];
   readonly direction: Direction;
-  readonly pendingDirection: Direction;
+  readonly directionQueue: readonly Direction[];
   readonly food: Vec2;
   readonly score: number;
   readonly tickInterval: number;

@@ -26,7 +26,7 @@ export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
     phase: 'idle',
     snake,
     direction: 'RIGHT',
-    pendingDirection: 'RIGHT',
+    directionQueue: [],
     food,
     score: 0,
     tickInterval: level.initialSpeed,
@@ -36,8 +36,10 @@ export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
 }
 
 export function queueDirection(state: GameState, dir: Direction): GameState {
-  if (dir === OPPOSITE[state.direction]) return state;
-  return { ...state, pendingDirection: dir };
+  const ref = state.directionQueue.at(-1) ?? state.direction;
+  if (dir === OPPOSITE[ref]) return state;
+  if (state.directionQueue.length >= 2) return state;
+  return { ...state, directionQueue: [...state.directionQueue, dir] };
 }
 
 export function setPhase(state: GameState, phase: GamePhase): GameState {
@@ -47,7 +49,7 @@ export function setPhase(state: GameState, phase: GamePhase): GameState {
 export function tick(state: GameState, rng: () => number = Math.random): GameState {
   if (state.phase !== 'playing') return state;
 
-  const direction = state.pendingDirection;
+  const [direction = state.direction, ...remainingQueue] = state.directionQueue;
   const head = state.snake[0];
   const { level, gridSize } = state;
 
@@ -73,6 +75,7 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
   return {
     ...state,
     direction,
+    directionQueue: remainingQueue,
     snake: newSnake,
     food: newFood,
     score: newScore,
