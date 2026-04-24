@@ -131,6 +131,8 @@ function renderScoreboard(): void {
   }
 }
 
+const cellSize = DEFAULT_CONFIG.cellSize;
+
 function fitCanvas(): void {
   const scale = Math.min(window.innerWidth / canvas.width, window.innerHeight / canvas.height, 1);
   canvas.style.width  = `${Math.round(canvas.width  * scale)}px`;
@@ -140,8 +142,8 @@ function fitCanvas(): void {
 function applySize(id: string): void {
   const cfg = getSize(id);
   grid = cfg.grid;
-  canvas.width  = cfg.grid.x * 20;
-  canvas.height = cfg.grid.y * 20;
+  canvas.width  = cfg.grid.x * cellSize;
+  canvas.height = cfg.grid.y * cellSize;
   fitCanvas();
   state = createGame(getLevel(levelId), grid);
   floatingTexts = [];
@@ -188,7 +190,6 @@ pauseBtn.addEventListener('click', () => {
 
 let lastTimestamp = 0;
 let accumulator = 0;
-const cellSize = DEFAULT_CONFIG.cellSize;
 
 function loop(timestamp: number): void {
   const delta = Math.min(timestamp - lastTimestamp, 200);

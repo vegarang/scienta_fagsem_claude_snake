@@ -216,87 +216,69 @@ function leadingOffset(dir: Direction): { dx: number; dy: number } {
   }
 }
 
-function drawSnake(
+function drawBodySegment(
   ctx: CanvasRenderingContext2D,
-  snake: readonly Vec2[],
-  direction: Direction,
-  cellSize: number,
+  seg: Vec2,
+  nextSeg: Vec2,
+  CS: number,
   colors: RendererConfig['colors'],
 ): void {
-  const CS = cellSize;
-
+  const { x, y } = seg;
   ctx.fillStyle = colors.snakeBody;
-  for (let i = snake.length - 1; i >= 1; i--) {
-    const { x, y } = snake[i];
-    ctx.beginPath();
-    (ctx as CanvasRenderingContext2D & { roundRect: (...args: unknown[]) => void }).roundRect(
-      x * CS + 1, y * CS + 1, CS - 2, CS - 2, 4
-    );
-    ctx.fill();
-
-    const next = snake[i - 1];
-    const dx = next.x - x;
-    const dy = next.y - y;
-    if (Math.abs(dx) === 1 && dy === 0) {
-      const stripX = dx > 0 ? x * CS + CS - 2 : next.x * CS + CS - 2;
-      ctx.fillRect(stripX, y * CS + 1, 4, CS - 2);
-    } else if (Math.abs(dy) === 1 && dx === 0) {
-      const stripY = dy > 0 ? y * CS + CS - 2 : next.y * CS + CS - 2;
-      ctx.fillRect(x * CS + 1, stripY, CS - 2, 4);
-    }
-  }
-
-  if (snake.length === 0) return;
-  const head = snake[0];
-  const hx = head.x * CS;
-  const hy = head.y * CS;
-  const hcx = hx + CS / 2;
-  const hcy = hy + CS / 2;
-
-  ctx.fillStyle = colors.snakeHead;
   ctx.beginPath();
-  (ctx as CanvasRenderingContext2D & { roundRect: (...args: unknown[]) => void }).roundRect(
-    hx + 1, hy + 1, CS - 2, CS - 2, 5
-  );
+  (ctx as RRCtx).roundRect(x * CS + 1, y * CS + 1, CS - 2, CS - 2, 4);
   ctx.fill();
 
-  if (snake.length > 1) {
-    const neck = snake[1];
-    const ndx = head.x - neck.x;
-    const ndy = head.y - neck.y;
-    ctx.fillStyle = colors.snakeBody;
-    if (Math.abs(ndx) === 1 && ndy === 0) {
-      const stripX = ndx > 0 ? neck.x * CS + CS - 2 : head.x * CS + CS - 2;
-      ctx.fillRect(stripX, hy + 1, 4, CS - 2);
-    } else if (Math.abs(ndy) === 1 && ndx === 0) {
-      const stripY = ndy > 0 ? neck.y * CS + CS - 2 : head.y * CS + CS - 2;
-      ctx.fillRect(hx + 1, stripY, CS - 2, 4);
-    }
+  const dx = nextSeg.x - x;
+  const dy = nextSeg.y - y;
+  if (Math.abs(dx) === 1 && dy === 0) {
+    const stripX = dx > 0 ? x * CS + CS - 2 : nextSeg.x * CS + CS - 2;
+    ctx.fillRect(stripX, y * CS + 1, 4, CS - 2);
+  } else if (Math.abs(dy) === 1 && dx === 0) {
+    const stripY = dy > 0 ? y * CS + CS - 2 : nextSeg.y * CS + CS - 2;
+    ctx.fillRect(x * CS + 1, stripY, CS - 2, 4);
   }
+}
 
-  const { dx, dy } = leadingOffset(direction);
-
+function drawEyes(
+  ctx: CanvasRenderingContext2D,
+  hx: number,
+  hy: number,
+  dir: Direction,
+  CS: number,
+): void {
+  const hcx = hx + CS / 2;
+  const hcy = hy + CS / 2;
+  const { dx, dy } = leadingOffset(dir);
   const perpX = dy !== 0 ? 1 : 0;
   const perpY = dx !== 0 ? 1 : 0;
   const eyeBaseX = hcx + dx * (CS / 2 - 5);
   const eyeBaseY = hcy + dy * (CS / 2 - 5);
-  const eyeOffsets = [-4, 4];
 
-  for (const off of eyeOffsets) {
+  for (const off of [-4, 4]) {
     const ex = eyeBaseX + perpX * off;
     const ey = eyeBaseY + perpY * off;
-
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(ex, ey, 2.5, 0, Math.PI * 2);
     ctx.fill();
-
     ctx.fillStyle = '#222222';
     ctx.beginPath();
     ctx.arc(ex + dx * 0.5, ey + dy * 0.5, 1, 0, Math.PI * 2);
     ctx.fill();
   }
+}
 
+function drawTongue(
+  ctx: CanvasRenderingContext2D,
+  hx: number,
+  hy: number,
+  dir: Direction,
+  CS: number,
+): void {
+  const hcx = hx + CS / 2;
+  const hcy = hy + CS / 2;
+  const { dx, dy } = leadingOffset(dir);
   const tx = hcx + dx * (CS / 2 - 1);
   const ty = hcy + dy * (CS / 2 - 1);
   ctx.strokeStyle = '#ff2255';
@@ -311,6 +293,53 @@ function drawSnake(
   ctx.moveTo(fx, fy);
   ctx.lineTo(fx + dx * 3 - dy * 2, fy + dy * 3 - dx * 2);
   ctx.stroke();
+}
+
+function drawSnakeHead(
+  ctx: CanvasRenderingContext2D,
+  head: Vec2,
+  neck: Vec2 | undefined,
+  dir: Direction,
+  CS: number,
+  colors: RendererConfig['colors'],
+): void {
+  const hx = head.x * CS;
+  const hy = head.y * CS;
+
+  ctx.fillStyle = colors.snakeHead;
+  ctx.beginPath();
+  (ctx as RRCtx).roundRect(hx + 1, hy + 1, CS - 2, CS - 2, 5);
+  ctx.fill();
+
+  if (neck) {
+    const ndx = head.x - neck.x;
+    const ndy = head.y - neck.y;
+    ctx.fillStyle = colors.snakeBody;
+    if (Math.abs(ndx) === 1 && ndy === 0) {
+      const stripX = ndx > 0 ? neck.x * CS + CS - 2 : head.x * CS + CS - 2;
+      ctx.fillRect(stripX, hy + 1, 4, CS - 2);
+    } else if (Math.abs(ndy) === 1 && ndx === 0) {
+      const stripY = ndy > 0 ? neck.y * CS + CS - 2 : head.y * CS + CS - 2;
+      ctx.fillRect(hx + 1, stripY, CS - 2, 4);
+    }
+  }
+
+  drawEyes(ctx, hx, hy, dir, CS);
+  drawTongue(ctx, hx, hy, dir, CS);
+}
+
+function drawSnake(
+  ctx: CanvasRenderingContext2D,
+  snake: readonly Vec2[],
+  direction: Direction,
+  cellSize: number,
+  colors: RendererConfig['colors'],
+): void {
+  if (snake.length === 0) return;
+  for (let i = snake.length - 1; i >= 1; i--) {
+    drawBodySegment(ctx, snake[i], snake[i - 1], cellSize, colors);
+  }
+  drawSnakeHead(ctx, snake[0], snake[1], direction, cellSize, colors);
 }
 
 function drawFloatingTexts(

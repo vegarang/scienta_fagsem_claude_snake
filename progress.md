@@ -121,3 +121,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Added `import type { PowerUpType }` to `audio.ts`. Replaced the single `playPowerup()` with five private sound functions and a `playPowerup(type: PowerUpType)` dispatcher: `speed_boost` → 3 rising square beeps (600/750/900 Hz, 55 ms); `slow_down` → descending sine sweep (460→200 Hz, 500 ms); `score_multiplier` → two-note coin jingle (C5/G5 sine, 100 ms); `shrink` → downward sawtooth zip (1100→120 Hz, 200 ms); `ghost_mode` → detuned shimmer cluster (440/447/434 Hz sine, 650 ms). In `main.ts`, added `prevActiveEffects` snapshot; detection block now plays `'shrink'` when snake shrank, or finds the newly-added effect type and plays accordingly.
 - **Outcome**: completed — 140 tests pass; `npm run build` clean.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 16 — Code quality improvements to reach 10/10** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/how-would-you-rate-replicated-valley.plan.md`
+- **Interpretation**: Five targeted improvements. (1) Hoisted `const cellSize = DEFAULT_CONFIG.cellSize` before `applySize()` call in `main.ts`; replaced two literal `20`s with `cellSize`. (2) Decomposed `tick()` in `game.ts` into three private helpers: `ageEffectsAndPowerups()` (returns aged effects/powerups), `resolveCollisions()` (wall/self/powerup collision, returns discriminated union), `maybeSpawnPickups()` (wall + powerup spawn countdown); `tick()` is now ~25 lines of pure orchestration. (3) Decomposed `drawSnake()` in `renderer.ts` into `drawBodySegment()`, `drawEyes()`, `drawTongue()`, and `drawSnakeHead()`; `drawSnake()` is now ~10 lines. (4) Added optional `powerupMaxOnBoard?`, `powerupSpawnMin?`, `powerupSpawnMax?` to `LevelConfig` in `types.ts`; `maybeSpawnPickups()` uses `?? POWERUP_*` fallbacks. (5) Added `open` attribute to `<details id="powerup-legend">` in `index.html` so legend is expanded on first load.
+- **Outcome**: completed — 140 tests pass; `npm run build` and `npm run lint` both exit 0.
+- **User feedback**: Not yet recorded.

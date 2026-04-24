@@ -38,6 +38,9 @@ export interface LevelConfig {
   readonly wallSpawnScore: number;
   readonly wallSpawnInterval: number;
   readonly wallSpawnMaxLength: number;
+  readonly powerupMaxOnBoard?: number;
+  readonly powerupSpawnMin?: number;
+  readonly powerupSpawnMax?: number;
 }
 
 export interface GameState {

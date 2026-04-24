@@ -1,4 +1,4 @@
-import type { GameState, GamePhase, Direction, LevelConfig, Vec2, ActiveEffect, PowerUp } from './types';
+import type { GameState, GamePhase, Direction, LevelConfig, Vec2, ActiveEffect, PowerUp, ExtraWall } from './types';
 import { nextHead, moveSnake, hasSelfCollision, hitsExtraWall, samePos } from './snake';
 import { placeFood } from './food';
 import { generateInitialWalls, spawnWall } from './walls';
@@ -71,43 +71,45 @@ export function getEffectiveTickInterval(state: GameState): number {
   return state.tickInterval;
 }
 
-export function tick(state: GameState, rng: () => number = Math.random): GameState {
-  if (state.phase !== 'playing') return state;
+function ageEffectsAndPowerups(state: GameState): {
+  agedEffects: readonly ActiveEffect[];
+  agedPowerups: readonly PowerUp[];
+} {
+  return {
+    agedEffects: state.activeEffects
+      .map(e => ({ ...e, remainingTicks: e.remainingTicks - 1 }))
+      .filter(e => e.remainingTicks > 0),
+    agedPowerups: state.powerups
+      .map(p => ({ ...p, expiresInTicks: p.expiresInTicks - 1 }))
+      .filter(p => p.expiresInTicks > 0),
+  };
+}
 
-  const [direction = state.direction, ...remainingQueue] = state.directionQueue;
+type CollisionResult =
+  | { died: true }
+  | { died: false; newSnake: readonly Vec2[]; ate: boolean; activeEffects: readonly ActiveEffect[]; boardPowerups: readonly PowerUp[] };
+
+function resolveCollisions(
+  state: GameState,
+  direction: Direction,
+  allWalls: readonly ExtraWall[],
+  agedEffects: readonly ActiveEffect[],
+  agedPowerups: readonly PowerUp[],
+): CollisionResult {
   const head = state.snake[0];
-  const { level, gridSize } = state;
-
-  const allWalls = [...level.extraWalls, ...state.dynamicWalls];
-
-  // 1. Age active effects
-  const agedEffects = state.activeEffects
-    .map(e => ({ ...e, remainingTicks: e.remainingTicks - 1 }))
-    .filter(e => e.remainingTicks > 0);
-
-  // 2. Age powerups on board
-  const agedPowerups = state.powerups
-    .map(p => ({ ...p, expiresInTicks: p.expiresInTicks - 1 }))
-    .filter(p => p.expiresInTicks > 0);
-
-  // 3. Ghost mode collision bypass
   const ghostActive = agedEffects.some(e => e.type === 'ghost_mode');
-  const rawHead = nextHead(head, direction, gridSize, level.wallBehavior);
+  const rawHead = nextHead(head, direction, state.gridSize, state.level.wallBehavior);
 
   if (!ghostActive && (rawHead === null || hitsExtraWall(rawHead, allWalls))) {
-    return { ...state, direction, phase: 'gameover' };
+    return { died: true };
   }
 
-  const newHead: Vec2 = rawHead ?? nextHead(head, direction, gridSize, 'wrap')!;
-
+  const newHead: Vec2 = rawHead ?? nextHead(head, direction, state.gridSize, 'wrap')!;
   const ate = samePos(newHead, state.food);
   let newSnake = moveSnake(state.snake, newHead, ate);
 
-  if (hasSelfCollision(newSnake)) {
-    return { ...state, direction, phase: 'gameover' };
-  }
+  if (hasSelfCollision(newSnake)) return { died: true };
 
-  // 4. Powerup collision
   let activeEffects: readonly ActiveEffect[] = agedEffects;
   let boardPowerups: readonly PowerUp[] = agedPowerups;
   const collectedPowerup = boardPowerups.find(p => samePos(p.pos, newHead));
@@ -120,30 +122,62 @@ export function tick(state: GameState, rng: () => number = Math.random): GameSta
     }
   }
 
-  // 5. Score and food
-  const multiplierActive = activeEffects.some(e => e.type === 'score_multiplier');
-  const newScore = ate ? state.score + (multiplierActive ? 2 : 1) : state.score;
-  const newInterval = ate
-    ? Math.max(state.tickInterval - level.speedIncrement, level.minSpeed)
-    : state.tickInterval;
-  const newFood = ate ? placeFood(newSnake, allWalls, gridSize, rng) : state.food;
+  return { died: false, newSnake, ate, activeEffects, boardPowerups };
+}
+
+function maybeSpawnPickups(
+  state: GameState,
+  newSnake: readonly Vec2[],
+  allWalls: readonly ExtraWall[],
+  newFood: Vec2,
+  newScore: number,
+  ate: boolean,
+  inPowerups: readonly PowerUp[],
+  rng: () => number,
+): { newDynamicWalls: readonly ExtraWall[]; boardPowerups: readonly PowerUp[]; newCountdown: number } {
+  let boardPowerups = inPowerups;
+  const maxOnBoard = state.level.powerupMaxOnBoard ?? POWERUP_MAX_ON_BOARD;
+  const spawnMin = state.level.powerupSpawnMin ?? POWERUP_SPAWN_MIN;
+  const spawnMax = state.level.powerupSpawnMax ?? POWERUP_SPAWN_MAX;
+
+  let newCountdown = state.powerupSpawnCountdown - 1;
+  if (newCountdown <= 0 && boardPowerups.length < maxOnBoard) {
+    const spawned = placePowerUp(newSnake, allWalls, boardPowerups, newFood, state.gridSize, newSnake[0], rng);
+    if (spawned) boardPowerups = [...boardPowerups, spawned];
+    newCountdown = spawnMin + Math.floor(rng() * (spawnMax - spawnMin + 1));
+  }
 
   let newDynamicWalls = state.dynamicWalls;
-  if (ate && level.wallSpawnInterval > 0 && newScore >= level.wallSpawnScore) {
-    if ((newScore - level.wallSpawnScore) % level.wallSpawnInterval === 0) {
-      const partialState = { ...state, snake: newSnake, score: newScore };
-      const wall = spawnWall(partialState, rng);
+  if (ate && state.level.wallSpawnInterval > 0 && newScore >= state.level.wallSpawnScore) {
+    if ((newScore - state.level.wallSpawnScore) % state.level.wallSpawnInterval === 0) {
+      const wall = spawnWall({ ...state, snake: newSnake, score: newScore }, rng);
       if (wall) newDynamicWalls = [...state.dynamicWalls, wall];
     }
   }
 
-  // 6. Spawn countdown
-  let newCountdown = state.powerupSpawnCountdown - 1;
-  if (newCountdown <= 0 && boardPowerups.length < POWERUP_MAX_ON_BOARD) {
-    const spawned = placePowerUp(newSnake, allWalls, boardPowerups, newFood, gridSize, newSnake[0], rng);
-    if (spawned) boardPowerups = [...boardPowerups, spawned];
-    newCountdown = POWERUP_SPAWN_MIN + Math.floor(rng() * (POWERUP_SPAWN_MAX - POWERUP_SPAWN_MIN + 1));
-  }
+  return { newDynamicWalls, boardPowerups, newCountdown };
+}
+
+export function tick(state: GameState, rng: () => number = Math.random): GameState {
+  if (state.phase !== 'playing') return state;
+
+  const [direction = state.direction, ...remainingQueue] = state.directionQueue;
+  const { level, gridSize } = state;
+  const allWalls = [...level.extraWalls, ...state.dynamicWalls];
+
+  const { agedEffects, agedPowerups } = ageEffectsAndPowerups(state);
+  const collision = resolveCollisions(state, direction, allWalls, agedEffects, agedPowerups);
+  if (collision.died) return { ...state, direction, phase: 'gameover' };
+
+  const { newSnake, ate, activeEffects, boardPowerups: postCollisionPowerups } = collision;
+  const multiplierActive = activeEffects.some(e => e.type === 'score_multiplier');
+  const newScore = ate ? state.score + (multiplierActive ? 2 : 1) : state.score;
+  const newInterval = ate ? Math.max(state.tickInterval - level.speedIncrement, level.minSpeed) : state.tickInterval;
+  const newFood = ate ? placeFood(newSnake, allWalls, gridSize, rng) : state.food;
+
+  const { newDynamicWalls, boardPowerups, newCountdown } = maybeSpawnPickups(
+    state, newSnake, allWalls, newFood, newScore, ate, postCollisionPowerups, rng,
+  );
 
   return {
     ...state,
