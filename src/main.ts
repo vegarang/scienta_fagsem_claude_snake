@@ -9,8 +9,8 @@ import type { GameState } from './types';
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 const scoreEl = document.getElementById('score')!;
-const difficultyButtons = document.querySelectorAll<HTMLButtonElement>('#difficulty button');
-const sizeButtons = document.querySelectorAll<HTMLButtonElement>('#size button');
+const difficultySelect = document.querySelector<HTMLSelectElement>('#difficulty-select')!;
+const sizeSelect = document.querySelector<HTMLSelectElement>('#size-select')!;
 const nameEntryEl = document.getElementById('name-entry') as HTMLElement;
 const nameInputEl = document.getElementById('name-input') as HTMLInputElement;
 const nameSubmitEl = document.getElementById('name-submit') as HTMLButtonElement;
@@ -25,14 +25,6 @@ let grid = getSize(sizeId).grid;
 
 let state: GameState = createGame(getLevel(levelId), grid);
 let prevPhase = state.phase;
-
-function setActiveButton(id: string): void {
-  difficultyButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.level === id));
-}
-
-function setActiveSizeButton(id: string): void {
-  sizeButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.size === id));
-}
 
 function renderScoreboard(): void {
   const entries = loadScoreboard();
@@ -66,24 +58,19 @@ function applySize(id: string): void {
   state = createGame(getLevel(levelId), grid);
 }
 
-difficultyButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    levelId = btn.dataset.level!;
-    setActiveButton(levelId);
-    state = createGame(getLevel(levelId), grid);
-  });
+difficultySelect.value = levelId;
+sizeSelect.value = sizeId;
+
+difficultySelect.addEventListener('change', () => {
+  levelId = difficultySelect.value;
+  state = createGame(getLevel(levelId), grid);
 });
 
-sizeButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    sizeId = btn.dataset.size!;
-    setActiveSizeButton(sizeId);
-    applySize(sizeId);
-  });
+sizeSelect.addEventListener('change', () => {
+  sizeId = sizeSelect.value;
+  applySize(sizeId);
 });
 
-setActiveButton(levelId);
-setActiveSizeButton(sizeId);
 applySize(sizeId);
 
 window.addEventListener('resize', fitCanvas);

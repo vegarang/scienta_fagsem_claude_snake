@@ -26,50 +26,20 @@
         font-size: 14px;
         align-items: center;
       }
-      #difficulty {
-        display: flex;
-        gap: 6px;
-      }
-      #difficulty button {
+      #difficulty-select,
+      #size-select {
         background: #333;
-        color: #aaa;
+        color: #ccc;
         border: 1px solid #555;
         border-radius: 4px;
-        padding: 3px 10px;
+        padding: 3px 8px;
         font-family: monospace;
         font-size: 13px;
         cursor: pointer;
+        outline: none;
       }
-      #difficulty button:hover {
-        background: #444;
-        color: #fff;
-      }
-      #difficulty button.active {
-        background: #4caf50;
-        color: #fff;
-        border-color: #4caf50;
-      }
-      #size {
-        display: flex;
-        gap: 6px;
-      }
-      #size button {
-        background: #333;
-        color: #aaa;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 3px 10px;
-        font-family: monospace;
-        font-size: 13px;
-        cursor: pointer;
-      }
-      #size button:hover {
-        background: #444;
-        color: #fff;
-      }
-      #size button.active {
-        background: #4caf50;
-        color: #fff;
+      #difficulty-select:focus,
+      #size-select:focus {
         border-color: #4caf50;
       }
       #name-entry {
@@ -160,14 +130,18 @@
     <div id="hud">
       <span>Score: <span id="score" data-testid="score">0</span></span>
       <div id="difficulty">
-        <button data-level="easy" class="active">Easy</button>
-        <button data-level="medium">Medium</button>
-        <button data-level="hard">Hard</button>
+        <select id="difficulty-select" aria-label="Difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
       </div>
       <div id="size">
-        <button data-size="small" class="active">Small</button>
-        <button data-size="medium">Medium</button>
-        <button data-size="large">Large</button>
+        <select id="size-select" aria-label="Size">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>
       </div>
     </div>
     <canvas id="game-canvas" data-testid="game-canvas"></canvas>

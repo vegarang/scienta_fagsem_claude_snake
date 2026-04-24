@@ -57,3 +57,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Created `src/scoreboard.ts` with `ScoreEntry`, `loadScoreboard`, and `addEntry` (localStorage, max 10 entries sorted by score desc). Added name-entry form (hidden by default, shown on gameover) and scoreboard table (always visible) to `index.html` with matching dark-theme CSS. Wired up in `src/main.ts`: `prevPhase` tracking to detect gameover transition, spacebar guard when name input is focused, submit/skip handlers, and `renderScoreboard()` called on load and after each interaction.
 - **Outcome**: Completed — 61 unit tests pass.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 8 — Convert difficulty and size selectors to dropdowns** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/i-want-the-difficulty-goofy-anchor.plan.md`
+- **Interpretation**: Replaced both button groups in `index.html` with `<select>` elements (`#difficulty-select`, `#size-select`). Removed `setActiveButton` and `setActiveSizeButton` helpers from `src/main.ts`; replaced `click` listeners on NodeLists with `change` listeners on the two selects; initial `.value` set from URL params. Removed button-group CSS, added matching dark-theme select styles.
+- **Outcome**: Completed — 61 unit tests pass; no E2E selector changes needed (tests didn't reference old buttons).
+- **User feedback**: Not yet recorded.
