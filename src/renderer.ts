@@ -7,6 +7,8 @@ export interface RendererConfig {
     snakeHead: string;
     snakeBody: string;
     food: string;
+    foodStem: string;
+    foodLeaf: string;
     wall: string;
     text: string;
     overlay: string;
@@ -19,7 +21,9 @@ export const DEFAULT_CONFIG: RendererConfig = {
     background: '#000000',
     snakeHead: '#00ff88',
     snakeBody: '#00cc66',
-    food: '#ff4444',
+    food: '#e63030',
+    foodStem: '#7a4000',
+    foodLeaf: '#3aaa3a',
     wall: '#888888',
     text: '#ffffff',
     overlay: 'rgba(0,0,0,0.6)',
@@ -85,20 +89,20 @@ function drawOverlay(
   ctx.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 16);
 }
 
-function drawApple(ctx: CanvasRenderingContext2D, food: Vec2, cellSize: number): void {
+function drawApple(ctx: CanvasRenderingContext2D, food: Vec2, cellSize: number, colors: RendererConfig['colors']): void {
   const cx = food.x * cellSize + cellSize / 2;
   const cy = food.y * cellSize + cellSize / 2;
   const r = cellSize / 2 - 2;
 
   ctx.beginPath();
   ctx.arc(cx, cy + 1, r, 0, Math.PI * 2);
-  ctx.fillStyle = '#e63030';
+  ctx.fillStyle = colors.food;
   ctx.fill();
 
-  ctx.fillStyle = '#7a4000';
+  ctx.fillStyle = colors.foodStem;
   ctx.fillRect(cx - 1, cy - r - 4, 2, 5);
 
-  ctx.fillStyle = '#3aaa3a';
+  ctx.fillStyle = colors.foodLeaf;
   ctx.beginPath();
   ctx.ellipse(cx + 4, cy - r - 1, 5, 2.5, Math.PI / 4, 0, Math.PI * 2);
   ctx.fill();
@@ -241,7 +245,7 @@ export function render(
 
   drawWalls(ctx, state.level.extraWalls, cellSize, colors.wall);
 
-  drawApple(ctx, state.food, cellSize);
+  drawApple(ctx, state.food, cellSize, colors);
 
   drawSnake(ctx, state.snake, state.direction, cellSize, colors);
 

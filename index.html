@@ -1,174 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="classic" data-mode="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Snake</title>
-    <style>
-      body {
-        margin: 0;
-        background: #1a1a1a;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 12px 0;
-        overflow-y: auto;
-        gap: 8px;
-        font-family: monospace;
-        color: #fff;
-      }
-      #page-title {
-        font-size: 20px;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #4caf50;
-        margin: 0;
-      }
-      #game-intro {
-        font-size: 12px;
-        color: #666;
-        text-align: center;
-        margin: 0;
-        max-width: 420px;
-        line-height: 1.6;
-      }
-      #stats {
-        display: flex;
-        gap: 12px;
-      }
-      .stat {
-        background: #222;
-        border: 1px solid #333;
-        border-radius: 6px;
-        padding: 6px 16px;
-        font-size: 12px;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-      }
-      .stat-value {
-        font-size: 18px;
-        color: #4caf50;
-        letter-spacing: 0;
-        text-transform: none;
-      }
-      canvas {
-        background: #000;
-      }
-      #hud {
-        display: flex;
-        gap: 24px;
-        font-size: 14px;
-        align-items: center;
-      }
-      #difficulty-select,
-      #size-select {
-        background: #333;
-        color: #ccc;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 3px 8px;
-        font-family: monospace;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-      }
-      #difficulty-select:focus,
-      #size-select:focus {
-        border-color: #4caf50;
-      }
-      #name-entry {
-        background: #222;
-        border: 1px solid #444;
-        border-radius: 6px;
-        padding: 10px 16px;
-        text-align: center;
-        font-size: 13px;
-        color: #ccc;
-      }
-      #name-entry p {
-        margin: 0 0 8px;
-      }
-      #name-entry-controls {
-        display: flex;
-        gap: 6px;
-        justify-content: center;
-        align-items: center;
-      }
-      #name-input {
-        background: #333;
-        color: #fff;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 3px 8px;
-        font-family: monospace;
-        font-size: 13px;
-        outline: none;
-      }
-      #name-input:focus {
-        border-color: #4caf50;
-      }
-      #name-submit, #name-skip {
-        background: #333;
-        color: #aaa;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 3px 10px;
-        font-family: monospace;
-        font-size: 13px;
-        cursor: pointer;
-      }
-      #name-submit:hover {
-        background: #4caf50;
-        color: #fff;
-        border-color: #4caf50;
-      }
-      #name-skip:hover {
-        background: #444;
-        color: #fff;
-      }
-      #scoreboard {
-        max-width: 400px;
-        width: 100%;
-        text-align: center;
-        font-size: 13px;
-      }
-      #scoreboard h2 {
-        margin: 0 0 6px;
-        font-size: 14px;
-        color: #aaa;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-      #score-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: monospace;
-        font-size: 12px;
-      }
-      #score-table th, #score-table td {
-        padding: 4px 8px;
-        text-align: left;
-        border-bottom: 1px solid #333;
-      }
-      #score-table th {
-        color: #888;
-      }
-      #no-scores {
-        color: #555;
-        font-size: 12px;
-        margin: 4px 0 0;
-      }
-    </style>
   </head>
   <body>
-    <h1 id="page-title">Play Snake</h1>
+    <header id="page-header">
+      <h1 id="page-title">Play Snake</h1>
+      <div id="theme-controls">
+        <ul id="theme-swatches">
+          <li><button class="theme-swatch active" data-theme-id="classic" aria-label="Classic" style="--swatch-color:#00ff88"></button></li>
+          <li><button class="theme-swatch" data-theme-id="ocean"   aria-label="Ocean"   style="--swatch-color:#00e5ff"></button></li>
+          <li><button class="theme-swatch" data-theme-id="sunset"  aria-label="Sunset"  style="--swatch-color:#ff7733"></button></li>
+          <li><button class="theme-swatch" data-theme-id="forest"  aria-label="Forest"  style="--swatch-color:#88cc44"></button></li>
+          <li><button class="theme-swatch" data-theme-id="minimal" aria-label="Minimal" style="--swatch-color:#aaaaaa"></button></li>
+        </ul>
+        <button id="mode-toggle" aria-label="Toggle light/dark mode">🌙</button>
+      </div>
+    </header>
     <p id="game-intro">
       Guide the snake to eat food, grow longer, and rack up points.<br>
       Arrow keys or WASD to steer &middot; Space to start, pause, or restart

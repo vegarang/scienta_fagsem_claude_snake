@@ -3,8 +3,11 @@ import { getLevel } from './levels';
 import { getSize } from './sizes';
 import { keyToDirection, shouldPreventDefault } from './input';
 import { render, DEFAULT_CONFIG } from './renderer';
+import type { RendererConfig } from './renderer';
 import { loadScoreboard, addEntry, type ScoreEntry } from './scoreboard';
 import type { GameState } from './types';
+import './style.css';
+import { THEMES, DEFAULT_THEME_ID, DEFAULT_MODE, getThemeVariant, type ThemeId, type ColorMode } from './themes';
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
@@ -19,6 +22,36 @@ const nameSkipEl = document.getElementById('name-skip') as HTMLButtonElement;
 const scoreBodyEl = document.getElementById('score-body') as HTMLTableSectionElement;
 const noScoresEl = document.getElementById('no-scores') as HTMLElement;
 const scoreTableEl = document.getElementById('score-table') as HTMLTableElement;
+
+const htmlEl = document.documentElement;
+const modeToggle = document.getElementById('mode-toggle') as HTMLButtonElement;
+const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
+
+const LS_THEME = 'snake-theme';
+const LS_MODE  = 'snake-mode';
+let currentThemeId: ThemeId = (localStorage.getItem(LS_THEME) as ThemeId) ?? DEFAULT_THEME_ID;
+let currentMode: ColorMode  = (localStorage.getItem(LS_MODE) as ColorMode) ?? DEFAULT_MODE;
+let rendererConfig: RendererConfig = DEFAULT_CONFIG;
+
+function applyTheme(): void {
+  htmlEl.dataset['theme'] = currentThemeId;
+  htmlEl.dataset['mode']  = currentMode;
+  modeToggle.textContent  = currentMode === 'dark' ? '☀️' : '🌙';
+  swatches.forEach(btn => btn.classList.toggle('active', btn.dataset['themeId'] === currentThemeId));
+  const variant = getThemeVariant(currentThemeId, currentMode);
+  rendererConfig = { ...DEFAULT_CONFIG, colors: { ...DEFAULT_CONFIG.colors, ...variant.canvas } };
+  localStorage.setItem(LS_THEME, currentThemeId);
+  localStorage.setItem(LS_MODE,  currentMode);
+}
+
+modeToggle.addEventListener('click', () => {
+  currentMode = currentMode === 'dark' ? 'light' : 'dark';
+  applyTheme();
+});
+swatches.forEach(btn => btn.addEventListener('click', () => {
+  currentThemeId = btn.dataset['themeId'] as ThemeId;
+  applyTheme();
+}));
 
 let levelId = new URLSearchParams(location.search).get('level') ?? 'easy';
 let sizeId = new URLSearchParams(location.search).get('size') ?? 'small';
@@ -53,8 +86,8 @@ function fitCanvas(): void {
 function applySize(id: string): void {
   const cfg = getSize(id);
   grid = cfg.grid;
-  canvas.width  = cfg.grid.x * DEFAULT_CONFIG.cellSize;
-  canvas.height = cfg.grid.y * DEFAULT_CONFIG.cellSize;
+  canvas.width  = cfg.grid.x * 20;
+  canvas.height = cfg.grid.y * 20;
   fitCanvas();
   state = createGame(getLevel(levelId), grid);
 }
@@ -73,6 +106,7 @@ sizeSelect.addEventListener('change', () => {
   applySize(sizeId);
 });
 
+applyTheme();
 applySize(sizeId);
 
 window.addEventListener('resize', fitCanvas);
@@ -99,7 +133,7 @@ function loop(timestamp: number): void {
   }
   prevPhase = state.phase;
 
-  render(ctx, state, DEFAULT_CONFIG);
+  render(ctx, state, rendererConfig);
   scoreEl.textContent = String(state.score);
 
   requestAnimationFrame(loop);

@@ -73,3 +73,11 @@ A record of every Claude task in this project: what was requested, how Claude in
 - **Interpretation**: Added `<h1 id="page-title">Play Snake</h1>`, `<p id="game-intro">` description with controls hint, and `<div id="stats">` with score and difficulty chips above the canvas. Moved `#hud` (selectors only, score removed) below the canvas. Added CSS for all new elements; updated `body` to `min-height: 100vh` + `padding` + `overflow-y: auto`. Wired `#stat-difficulty` chip to update on difficulty select change in `main.ts`.
 - **Outcome**: Completed — 61 unit tests pass; layout verified visually.
 - **User feedback**: Not yet recorded.
+
+---
+
+**Task 10 — UI modernization: themes & dark/light mode** (2026-04-24)
+- **Command**: Implement plan from `.air/plans/ui-modernization-themes.plan.md`
+- **Interpretation**: Created `src/themes.ts` (5 themes × 2 modes = 10 canvas + CSS palettes), `src/style.css` (CSS custom properties, full page styling). Extended `src/renderer.ts` `RendererConfig.colors` with `foodStem`/`foodLeaf` and threaded them into `drawApple`. Rewrote `index.html` removing inline `<style>`, adding `data-theme`/`data-mode` on `<html>`, and a `<header>` with swatch buttons + mode toggle. Updated `src/main.ts` to import CSS and themes, added `applyTheme()` function, `localStorage` persistence, and event wiring for swatches and mode toggle.
+- **Outcome**: Completed — 61 unit tests pass; no new TypeScript errors (pre-existing errors in e2e specs and game.ts are unrelated); app loads cleanly in browser.
+- **User feedback**: Not yet recorded.
