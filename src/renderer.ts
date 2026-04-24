@@ -368,12 +368,6 @@ export function render(
     drawFloatingTexts(ctx, opts.floatingTexts, opts.now, colors);
   }
 
-  ctx.fillStyle = colors.text;
-  ctx.textAlign = 'left';
-  ctx.font = '14px monospace';
-  ctx.fillText(`Score: ${state.score}`, 6, 16);
-  ctx.fillText(state.level.name, canvas.width - 60, 16);
-
   if (!opts.suppressOverlay) {
     if (state.phase === 'idle') {
       drawOverlay(ctx, canvas, 'SNAKE', ['Press Space to start'], colors);

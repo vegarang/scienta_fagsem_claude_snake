@@ -205,27 +205,25 @@ canvas {
 }
 
 #pause-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 14px;
+  margin-left: auto;
+  align-self: stretch;
+  min-width: 46px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background 100ms ease;
-  z-index: 10;
+  transition: background 100ms ease, border-color 100ms ease;
+  flex-shrink: 0;
 }
 
 #pause-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
+  border-color: var(--accent);
 }
 
 #hud {
