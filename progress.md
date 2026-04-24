@@ -23,8 +23,8 @@ A record of every Claude task in this project: what was requested, how Claude in
 **Task 3 — Cartoon snake + apple visuals** (2026-04-24)
 - **Command**: Give the snake and food a cartoon look
 - **Interpretation**: Changes isolated to `src/renderer.ts` only. "Cartoon" interpreted as: rounded body segments with connectors between them, direction-aware eyes with pupils, a forked tongue on the head, and an apple with stem, leaf, and shine highlight.
-- **Outcome**: Planned (see `.air/plans/i-d-like-the-snake-replicated-harbor.plan.md`)
-- **User feedback**: Not yet implemented; no feedback recorded.
+- **Outcome**: Completed — `src/renderer.ts` rewritten with `drawApple` and `drawSnake` functions; build and all 58 tests pass.
+- **User feedback**: No feedback yet.
 
 ---
 
