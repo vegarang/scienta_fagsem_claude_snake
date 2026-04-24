@@ -44,3 +44,18 @@ Level picks up automatically via the `?level=<id>` URL param.
 
 Append `?level=easy`, `?level=medium`, or `?level=hard` to the URL.
 Default is `easy`.
+
+## Maintaining progress.md
+
+After every completed task, append an entry to `progress.md` in the project root using this format:
+
+```
+---
+**Task N — <short title>** (YYYY-MM-DD)
+- **Command**: _exact or paraphrased user request_
+- **Interpretation**: _what Claude understood and did_
+- **Outcome**: completed / partial / abandoned
+- **User feedback**: _corrections, praise, redirections_
+```
+
+Keep entries in chronological order. Update the status of planned tasks to "completed" once implemented.
