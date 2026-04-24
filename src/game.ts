@@ -36,7 +36,7 @@ export function createGame(level: LevelConfig, gridSize: Vec2): GameState {
 }
 
 export function queueDirection(state: GameState, dir: Direction): GameState {
-  if (dir === OPPOSITE[state.pendingDirection]) return state;
+  if (dir === OPPOSITE[state.direction]) return state;
   return { ...state, pendingDirection: dir };
 }
 

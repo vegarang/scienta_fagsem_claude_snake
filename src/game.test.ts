@@ -46,8 +46,13 @@ describe('queueDirection', () => {
     expect(queueDirection(state, 'LEFT').pendingDirection).toBe('RIGHT');
   });
 
-  it('allows perpendicular direction after partial turn', () => {
-    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'UP' });
+  it('rejects reversal even when pendingDirection differs from direction', () => {
+    const state = playingGame({ direction: 'RIGHT', pendingDirection: 'DOWN' });
+    expect(queueDirection(state, 'LEFT').pendingDirection).toBe('DOWN');
+  });
+
+  it('allows perpendicular direction once prior turn is committed', () => {
+    const state = playingGame({ direction: 'UP', pendingDirection: 'UP' });
     expect(queueDirection(state, 'LEFT').pendingDirection).toBe('LEFT');
   });
 });
